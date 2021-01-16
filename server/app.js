@@ -94,7 +94,7 @@ io.on('connection', socket => {
         for(let i = 0; i<current_players.length; i++){
             if (current_players[i].uid == player_code.uid){
                 games.get(player_code.id).players[i].code = player_code.code;
-                socket.to("/game/:"+player_code.id+"/spectate").emit("code", player_code.uid, player_code.code)
+                socket.to("/game/:"+player_code.id+"/spectate").emit("code", player_code.uid, player_code.code) //sends uid and code to spectator room
                 break;
             }
         }
