@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
             if (games.get(player_data.id).players.length < 8) {
                 games.get(player_data.id).players.push(player_data.player)
             } else {
-                throw 'Too many players in game'
+                console.log('ERROR: Game room full')
             }
         } else {
             console.log('Game id does not exist. Creating new game.')
@@ -99,6 +99,34 @@ io.on('connection', (socket) => {
         }
     })
 
+    // spectators
+    socket.on('spectate', (game) => {
+        /*
+         * {
+         *      id: string
+         * }
+         * */
+        if (!games.get(game.id))
+            return socket.emit('error', {
+                error: "The game doesn't exist!",
+            })
+        console.log(`spectating ${game.id}`)
+        socket.join(`/game/${game.id}/spectate`)
+        socket.emit('spectate', {
+            msg: `Spectating ${game.id}`,
+        })
+    })
+
+    // initial request
+    socket.on('load game', (game) => {
+        /*
+         * {
+         *      "id": int
+         * }
+         * */
+        socket.emit('load game', game.get(game.id))
+    })
+
     socket.on('code update', (player_code) => {
         /* player code expected in the form of 
         {
@@ -109,11 +137,12 @@ io.on('connection', (socket) => {
         */
         let current_players = games.get(player_code.id).players
         for (let i = 0; i < current_players.length; i++) {
-            if (current_players[i].uid == player_code.uid) {
+            if (current_players[i].uid === player_code.uid) {
                 games.get(player_code.id).players[i].code = player_code.code
-                socket
-                    .to('/game/' + player_code.id + '/spectate')
-                    .emit('code', player_code.uid, player_code.code)
+                io.to('/game/' + player_code.id + '/spectate').emit('code', {
+                    uid: player_code.uid,
+                    code: player_code.code,
+                })
                 break
             }
         }
@@ -130,7 +159,7 @@ io.on('connection', (socket) => {
         let current_players = games.get(msg.id).players
         let all_ready = true
         for (let i = 0; i < current_players.length; i++) {
-            if (current_players[i].uid == msg.ui) {
+            if (current_players[i].uid === msg.ui) {
                 games.get(msg.id).players[i].ready = msg.ready //update the ready for the player that sent the ready signal
             }
             if (!games.get(msg.id).players[i].ready) {
@@ -139,8 +168,31 @@ io.on('connection', (socket) => {
         }
         games.get(msg.id).ready = all_ready
         if (all_ready) {
-            socket.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            io.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+
+            let time_amount = 900000 // 15 minutes
+            setTimeout(() => {
+                io.to('/game/' + msg.id).emit('game over')
+                io.to('/game/' + msg.id + '/spectate').emit('game over')
+                time_amount = 60000 // 1 minute
+                setTimeout(() => {
+                    io.to('/game/' + msg.id).emit('voting over')
+                    io.to('/game/' + msg.id + '/spectate').emit('voting over')
+                }, time_amount)
+            }, time_amount)
         }
+    })
+
+    socket.on('chat message', (msg_data) => {
+        /* msg_data expected in the form of 
+        {
+            "id": string,
+            "uid": string,
+            "msg": bool
+        }
+        */
+        io.to('/game/' + msg_data.id).emit('chat message', msg_data)
+        console.log('message: ' + msg_data.msg)
     })
 
     socket.on('disconnect', () => {
