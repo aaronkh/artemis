@@ -1,47 +1,54 @@
+const uuid = require('uuid').v4
 const vscode = require('vscode')
-const path = require('path')
 const Game = require('./templates/Game')
 const Splash = require('./templates/Splash')
+const Renderer = require('./templates/Renderer')
 
 const PAGES = {
     splash: Splash,
-    game: Game
+    game: Game,
+    // end: End
 }
 
 class Provider {
-    constructor(path) {
+    constructor() {
         this.windowActive = false
-        this.path = path
         this.gameId = ''
+        this.player = {
+            name: 'Aaron',
+            id: ''
+        }
     }
 
     activateWindows(window) {
-        try {
-            if (this.windowActive) {
-                return
-            }
+        if (this.windowActive) {
+            return
+        }
 
-            const panel = window.createWebviewPanel(
-                'coding-in-the-dark',
-                'Coding in the Dark',
-                vscode.ViewColumn.Beside,
-                { enableScripts: true })
-            if (this.gameId) {
-                // Game has already started   
-            } else {
-                // Load landing page
-                this._loadHTML(
-                    PAGES['splash'],
-                    panel
-                )
-            }
+        const panel = window.createWebviewPanel(
+            'coding-in-the-dark',
+            'Coding in the Dark',
+            vscode.ViewColumn.Beside,
+            { enableScripts: true })
+        this.windowActive = true
+        this.panel = panel
 
-            // Remember to clear listeners!
-            panel.onDidDispose(() => this.dispose())
+        panel.webview.html = Renderer
+        if (this.gameId) {
+            // Game has already started  
+            this._loadHTML(
+                PAGES['game'],
+                player)
+        } else {
+            // Load landing page
+            this._loadHTML(
+                PAGES['splash'],
+            )
+        }
 
-            this.windowActive = true
-            this.panel = panel
-        } catch (e) { console.error(e) }
+        // Remember to clear listeners!
+        panel.onDidDispose(() => this.dispose())
+
     }
 
     dispose() {
@@ -49,15 +56,20 @@ class Provider {
         this.panel = null
     }
 
-    _sendMessage(message) {
+    _sendMessage(d) {
         // JS message passing: https://code.visualstudio.com/api/extension-guides/webview#scripts-and-message-passing
-        console.log(message)
+        if (!this.panel) {
+            return
+        }
+        console.log(d)
+        this.panel.webview.postMessage(d)
     }
 
-    _loadHTML(page, panel) {
-        if (!panel) return
-        const html = page.render()
-        panel.webview.html = html
+    _loadHTML(page, data) {
+        if (!this.panel) return
+        // Render each part of data then pass into 
+        // message event
+        this._sendMessage({type: 'render', ...page.render({data})})
     }
 }
 
