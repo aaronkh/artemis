@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouteMatch, Link, Route, Switch } from 'react-router-dom'
 
 import Frame, { FullFrame } from './frame'
+import Chat from './chat/index'
+import './Apps.css'
 
 const PLAYERS = [
     {
@@ -29,14 +31,17 @@ function Game() {
     const [players, setPlayers] = useState(PLAYERS)
 
     return (
-        <div className="container">
-            <h5>Time Left: 10:20</h5>
-            <Route path={`${match.path}/screen/:player_id`}>
-                <Focus players={players} path={match.url} />
-            </Route>
-            <Route exact path={`${match.path}/`}>
-                <Gallery players={players} />
-            </Route>
+        <div>
+            <div className = "chat"><Chat></Chat> </div>
+            <div className="container">
+                <h5>Time Left: 10:20</h5>
+                <Route path={`${match.path}/screen/:player_id`}>
+                    <Focus players={players} path={match.url} />
+                </Route>
+                <Route exact path={`${match.path}/`}>
+                    <Gallery players={players} />    
+                </Route>
+            </div>
         </div>
     )
 }

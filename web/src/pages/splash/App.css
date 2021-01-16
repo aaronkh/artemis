@@ -1,0 +1,35 @@
+body {
+  background-color: #000000;
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.smallTitle{
+    margin-top: 0;
+    padding-top: 0px;
+    text-align: left;
+}
+
+.header{
+    padding-top: 200px;
+    padding-bottom: 20 px;
+    font-weight: bold;
+}
+
+.input{
+    color: #838383;
+    text-align: center;
+    padding: 8px 90px;
+}
+
+.button {
+    background-color: #49B738; /* Green */
+    border: none;
+    color: white;
+    padding: 8px 151px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+  }
