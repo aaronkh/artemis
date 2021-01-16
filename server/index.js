@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
             if (games.get(player_data.id).players.length < 8) {
                 games.get(player_data.id).players.push(player_data.player)
             } else {
-                throw 'Too many players in game'
+                console.log("ERROR: Game room full");
             }
         } else {
             console.log('Game id does not exist. Creating new game.')
@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
                 games.get(player_code.id).players[i].code = player_code.code
                 socket
                     .to('/game/' + player_code.id + '/spectate')
-                    .emit('code', player_code.uid, player_code.code)
+                    .emit('code', {uid: player_code.uid, code: player_code.code})
                 break
             }
         }
@@ -142,6 +142,18 @@ io.on('connection', (socket) => {
             socket.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
         }
     })
+
+    socket.on('chat message', (msg_data) => {
+        /* msg_data expected in the form of 
+        {
+            "id": string,
+            "uid": string,
+            "msg": bool
+        }
+        */
+        socket.to("/game/:"+msg_data.id).emit("chat message", msg_data)
+        console.log('message: ' + msg);
+    });
 
     socket.on('disconnect', () => {
         console.log('A player has disconencted')
