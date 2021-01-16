@@ -170,9 +170,9 @@ io.on('connection', (socket) => {
         }
         games.get(msg.id).ready = all_ready
         if (all_ready) {
-            io.to(`/game/${msg.id}`.emit('all ready') //sends the all ready signal to the game room with the received game id
+            io.to(`/game/${msg.id}`).emit('all ready'); //sends the all ready signal to the game room with the received game id
 
-            let time_amount = 900000 // 15 minutes
+            let time_amount = 900000; // 15 minutes
             setTimeout(() => {
                 io.to(`/game/${msg.id}`).emit('game over')
                 io.to(`/game/${msg.id}/spectate`).emit('game over')
