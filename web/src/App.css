@@ -22,6 +22,22 @@ body {
     color: #fff !important;
 }
 
+.splash-input {
+    appearance: none;
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.splash-input.btn {
+    background: #38c846;
+    color: rgba(255, 255, 255, 0.95);
+}
+
 .website {
     cursor: pointer;
     width: 500px;

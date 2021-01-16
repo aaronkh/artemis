@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
             if (games.get(player_data.id).players.length < 8) {
                 games.get(player_data.id).players.push(player_data.player)
             } else {
-                console.log("ERROR: Game room full");
+                console.log('ERROR: Game room full')
             }
         } else {
             console.log('Game id does not exist. Creating new game.')
@@ -97,6 +97,21 @@ io.on('connection', (socket) => {
                 ready: false,
             })
         }
+    })
+
+    // spectator
+    socket.on('spectate', (game) => {
+        /*
+         * {
+         *      id: string
+         * }
+         * */
+        console.log('spectating')
+        if (!games.get(game.id))
+            return socket.emit('error', {
+                error: "The game doesn't exist!",
+            })
+        socket.join(`/game/${game.id}/spectate`)
     })
 
     socket.on('code update', (player_code) => {
@@ -113,7 +128,10 @@ io.on('connection', (socket) => {
                 games.get(player_code.id).players[i].code = player_code.code
                 socket
                     .to('/game/' + player_code.id + '/spectate')
-                    .emit('code', {uid: player_code.uid, code: player_code.code})
+                    .emit('code', {
+                        uid: player_code.uid,
+                        code: player_code.code,
+                    })
                 break
             }
         }
@@ -139,7 +157,15 @@ io.on('connection', (socket) => {
         }
         games.get(msg.id).ready = all_ready
         if (all_ready) {
-            socket.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            let time_amount = 900000 // 15 minutes
+            setTimeout(() => {
+                socket.to('/game/:' + msg.id).emit('gameover')
+                time_amount = 60000 // 1 minute
+                setTimeout(() => {
+                    socket.to('/game/:' + msg.id).emit('voting over')
+                }, time_amount)
+            }, time_amount)
+            socket.to('/game/:' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
         }
     })
 
@@ -151,9 +177,9 @@ io.on('connection', (socket) => {
             "msg": bool
         }
         */
-        socket.to("/game/:"+msg_data.id).emit("chat message", msg_data)
-        console.log('message: ' + msg);
-    });
+        socket.to('/game/:' + msg_data.id).emit('chat message', msg_data)
+        console.log('message: ' + msg_data.msg)
+    })
 
     socket.on('disconnect', () => {
         console.log('A player has disconencted')
