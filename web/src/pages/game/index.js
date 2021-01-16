@@ -31,18 +31,22 @@ function Game() {
     const [players, setPlayers] = useState(PLAYERS)
 
     return (
-        <div>
-            <div className = "chat"><Chat></Chat> </div>
+       
+            
             <div className="container">
+            <Chat /> 
                 <h5>Time Left: 10:20</h5>
                 <Route path={`${match.path}/screen/:player_id`}>
                     <Focus players={players} path={match.url} />
                 </Route>
+                
                 <Route exact path={`${match.path}/`}>
                     <Gallery players={players} />    
                 </Route>
             </div>
-        </div>
+           
+
+    
     )
 }
 

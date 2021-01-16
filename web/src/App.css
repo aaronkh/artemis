@@ -87,32 +87,29 @@ body {
 }
 
 .chat{
-    background: #2D2D2D; 
-    height: 100vh;
-    width: 20vw;
-    position: fixed;
-    left: 79vw;
-    bottom: 1vh;
-}
- 
-#chat-input {
-    flex-grow: 1;
-    border: none; 
-    padding: 0 1rem; 
-    border-radius: 2rem; 
-    margin: 0.25rem; 
-    margin-top: 90vh;
-    position: fixed;
+    background-color: #2b2a2a;
     width: 19vw;
+    height: 90vh;
+    position: fixed;
+    margin-left: 65vw;
 }
 
-#chat-input:focus { 
-    outline: none; 
+.chat-input {
+    flex-grow: 1;
+    padding: 0 1rem; 
+    position: relative;
+    margin-top: 82vh;
+    width: 19vw;
 }
 .chat-header{
-    margin-top: 40px;
-    margin-left: 20px;
+    margin-left: 1vw;
+    margin-top: 1vw;
 }
+
+.chat-input:focus { 
+    outline: none; 
+}
+
 .splash{
     text-align: center;
 }
