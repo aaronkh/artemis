@@ -5,6 +5,7 @@ function Splash() {
     <div className = "smallTitle">
         <h6>Coding in the Dark</h6>
     </div>
+    
     <div className = "splash">
         <h1 className = "header">Coding in the Dark</h1>
 
