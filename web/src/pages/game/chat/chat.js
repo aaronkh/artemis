@@ -2,14 +2,12 @@ import "../../../App.css"
 
 function chat(){
     return<>
-        <div classname = "chat">
+        <div className = "chat">
             <h4 className = "chat-header" >Chat</h4>
-            <div className = "chat-input">
-                <ul id="chat-messages"></ul>
-                <form id="chat-form" action="">
-                    <input id="chat-input" autocomplete="off" />
-                </form>
-            </div>
+            <ul className="chat-messages"></ul>
+            <form className="chat-form" action="">
+                <input className="chat-input" placeholder="Send a message" autocomplete="off" />
+            </form>
         </div>
     </>
 }

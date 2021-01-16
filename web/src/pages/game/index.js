@@ -75,10 +75,12 @@ function Game() {
                     height: '100%',
                 }}
             >
+                <Chat />
                 <h5>Time Left: 10:20</h5>
                 <Route path={`${match.path}/screen/:player_id`}>
                     <Focus players={players} path={match.url} />
                 </Route>
+
                 <Route exact path={`${match.path}/`}>
                     <Gallery players={players} />
                 </Route>
