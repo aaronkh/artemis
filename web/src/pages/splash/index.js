@@ -4,15 +4,23 @@ import socket from '../../lib/socket'
 function Splash() {
     const [name, setName] = useState('')
     const [game, setGame] = useState('')
+    const [err, setErr] = useState('')
 
     useEffect(() => {
         socket.on('connect', () => {
             console.log('yay')
         })
+        socket.on('error', (error) => {
+            setErr(error.error)
+        })
+
+        return function cleanup() {
+            socket.off('connect')
+            socket.off('error')
+        }
     })
 
     const onSubmit = () => {
-        console.log('spectating')
         socket.emit('spectate', {
             id: game,
         })
@@ -43,6 +51,24 @@ function Splash() {
                 </h1>
 
                 <div className="offset-3 col-6">
+                    {err && (
+                        <div
+                            className="alert alert-danger alert-dismissable fade show"
+                            role="alert"
+                        >
+                            {err}
+                            <button
+                                type="button"
+                                className="close"
+                                data-dismiss="alert"
+                                aria-label="Close"
+                                onClick={() => setErr('')}
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    )}
+
                     <input
                         placeholder="Name"
                         className="splash-input form-control"

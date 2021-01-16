@@ -106,11 +106,11 @@ io.on('connection', (socket) => {
          *      id: string
          * }
          * */
+        console.log('spectating')
         if (!games.get(game.id))
             return socket.emit('error', {
-                error: 'game does not exist',
+                error: "The game doesn't exist!",
             })
-        console.log('spectating')
         socket.join(`/game/${game.id}/spectate`)
     })
 
@@ -157,7 +157,15 @@ io.on('connection', (socket) => {
         }
         games.get(msg.id).ready = all_ready
         if (all_ready) {
-            socket.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            let time_amount = 900000 // 15 minutes
+            setTimeout(() => {
+                socket.to('/game/:' + msg.id).emit('gameover')
+                time_amount = 60000 // 1 minute
+                setTimeout(() => {
+                    socket.to('/game/:' + msg.id).emit('voting over')
+                }, time_amount)
+            }, time_amount)
+            socket.to('/game/:' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
         }
     })
 
@@ -170,7 +178,7 @@ io.on('connection', (socket) => {
         }
         */
         socket.to('/game/:' + msg_data.id).emit('chat message', msg_data)
-        console.log('message: ' + msg)
+        console.log('message: ' + msg_data.msg)
     })
 
     socket.on('disconnect', () => {
