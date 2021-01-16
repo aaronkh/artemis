@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
             if (games.get(player_data.id).players.length < 8) {
                 games.get(player_data.id).players.push(player_data.player)
             } else {
-                console.log("ERROR: Game room full");
+                console.log('ERROR: Game room full')
             }
         } else {
             console.log('Game id does not exist. Creating new game.')
@@ -97,6 +97,20 @@ io.on('connection', (socket) => {
                 ready: false,
             })
         }
+    })
+
+    // spectator
+    socket.on('spectate', (game) => {
+        /*
+         * {
+         *      id: string
+         * }
+         * */
+        if (!games.get(game_id))
+            return socket.emit('error', {
+                error: 'game does not exist',
+            })
+        socket.join(`/game/${game_id}/spectate`)
     })
 
     socket.on('code update', (player_code) => {
@@ -113,7 +127,10 @@ io.on('connection', (socket) => {
                 games.get(player_code.id).players[i].code = player_code.code
                 socket
                     .to('/game/' + player_code.id + '/spectate')
-                    .emit('code', {uid: player_code.uid, code: player_code.code})
+                    .emit('code', {
+                        uid: player_code.uid,
+                        code: player_code.code,
+                    })
                 break
             }
         }
@@ -151,9 +168,9 @@ io.on('connection', (socket) => {
             "msg": bool
         }
         */
-        socket.to("/game/:"+msg_data.id).emit("chat message", msg_data)
-        console.log('message: ' + msg);
-    });
+        socket.to('/game/:' + msg_data.id).emit('chat message', msg_data)
+        console.log('message: ' + msg)
+    })
 
     socket.on('disconnect', () => {
         console.log('A player has disconencted')

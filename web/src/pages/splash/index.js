@@ -1,20 +1,70 @@
-import './App.css'
+import { useEffect, useState } from 'react'
+import socket from '../../lib/socket'
 
 function Splash() {
-    return <>
-    <div className = "smallTitle">
-        <h6>Coding in the Dark</h6>
-    </div>
-    <div className = "splash">
-        <h1 className = "header">Coding in the Dark</h1>
+    const [name, setName] = useState('')
+    const [game, setGame] = useState('')
 
-        <p><input className = "input" type="text" id="name" name="name" value = "Name" required></input></p>
-        <p><input className = "input" type="text" id="codeid" name="name" value = "Code ID" required></input></p>
-        <button className = "button">Spectate</button>
-    </div>
+    useEffect(() => {
+        socket.on('connect', () => {
+            console.log('yay')
+        })
+    })
 
-    </>
+    const onSubmit = () => {
+        socket.emit('spectate', {
+            id: game,
+        })
+    }
+
+    return (
+        <div
+            className="container"
+            style={{
+                height: '100%',
+            }}
+        >
+            <div
+                style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                }}
+            >
+                <h1
+                    className="text-center"
+                    style={{
+                        marginBottom: '40px',
+                    }}
+                >
+                    Coding in the Dark
+                </h1>
+
+                <div className="offset-3 col-6">
+                    <input
+                        placeholder="Name"
+                        className="splash-input form-control"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                    <input
+                        placeholder="Game Code"
+                        className="splash-input form-control"
+                        type="text"
+                        value={game}
+                        onChange={(e) => setGame(e.target.value)}
+                        required
+                    />
+                    <button className="splash-input form-control btn">
+                        Spectate
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
 }
-
 
 export default Splash
