@@ -10,21 +10,19 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:coding-in-the-dark.helloWorld"
+		"onCommand:coding-in-the-dark.startPlaying"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "coding-in-the-dark.helloWorld",
-				"title": "Hello World"
+				"command": "coding-in-the-dark.startPlaying",
+				"title": "Code in the Dark!"
 			}
 		]
 	},
 	"scripts": {
-		"lint": "eslint .",
-		"pretest": "npm run lint",
-		"test": "node ./test/runTest.js"
+		"lint": "eslint ."
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.52.0",
@@ -36,5 +34,9 @@
 		"mocha": "^8.1.3",
 		"typescript": "^4.1.2",
 		"vscode-test": "^1.4.1"
+	},
+	"dependencies": {
+		"handlebars": "^4.7.6",
+		"uuid": "^8.3.2"
 	}
 }
