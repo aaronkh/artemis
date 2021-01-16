@@ -7,7 +7,8 @@ const io = require('socket.io')(sockServer, {origins: '*:*'})
 app.use(express.json())
 
 var HashMap = require('hashmap');
-var games = new HashMap();
+const { time } = require('console')
+let games = new HashMap();
 /*
 games
 {
@@ -78,7 +79,7 @@ io.on('connection', socket => {
                 players: [player_data.player],
                 time: new Date(),
                 ready: false
-            })
+            });
         }
     })
 
@@ -90,11 +91,11 @@ io.on('connection', socket => {
             "code": string
         }
         */
-        current_players = games.get(player_code.id).players;
+        let current_players = games.get(player_code.id).players;
         for(let i = 0; i<current_players.length; i++){
             if (current_players[i].uid == player_code.uid){
                 games.get(player_code.id).players[i].code = player_code.code;
-                socket.to("/game/:"+player_code.id+"/spectate").emit("code", {uid: player_code.uid, code: player_code.code}) //sends uid and code to spectator room
+                socket.to("/game/:"+player_code.id+"/spectate").emit("code", {uid: player_code.uid, code: player_code.code}); //sends uid and code to spectator room
                 break;
             }
         }
@@ -108,8 +109,8 @@ io.on('connection', socket => {
             "ready": bool
         }
         */
-        current_players = games.get(msg.id).players;
-        all_ready = true;
+        let current_players = games.get(msg.id).players;
+        let all_ready = true;
         for(let i = 0; i<current_players.length; i++){
             if (current_players[i].uid == msg.ui){
                 games.get(msg.id).players[i].ready = msg.ready; //update the ready for the player that sent the ready signal
@@ -120,7 +121,15 @@ io.on('connection', socket => {
         }
         games.get(msg.id).ready = all_ready; 
         if(all_ready){
-            socket.to("/game/:"+msg.id).emit("all ready") //sends the all ready signal to the game room with the received game id
+            let time_amount = 900000; // 15 minutes
+            setTimeout(()=>{
+                socket.to("/game/:"+msg.id).emit("gameover");
+                time_amount = 60000 // 1 minute
+                setTimeout(()=>{
+                    socket.to("/game/:"+msg.id).emit("voting over");
+                },time_amount)
+            },time_amount)
+            socket.to("/game/:"+msg.id).emit("all ready"); //sends the all ready signal to the game room with the received game id
         }
     })
 
