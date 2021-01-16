@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouteMatch, Link, Route, Switch } from 'react-router-dom'
 
 import Frame, { FullFrame } from './frame'
-import Chat from './chat/index'
-import './Apps.css'
+import Chat from './chat/chat'
+import '../../App.css'
 
 const PLAYERS = [
     {

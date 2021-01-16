@@ -2,7 +2,7 @@ import './App.css'
 import { BrowserRouter as Router, Switch, Link, Route } from 'react-router-dom'
 
 import Game from './pages/game'
-import Splash from './pages/splash'
+import Splash from './pages/splash/splash'
 
 function Navbar() {
     return (
