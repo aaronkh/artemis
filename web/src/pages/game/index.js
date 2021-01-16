@@ -66,25 +66,31 @@ function Game() {
 
     return (
         <>
-            <div className="chat">
-                <Chat />
-            </div>
-            <div
-                className="container"
-                style={{
-                    height: '100%',
-                }}
-            >
-                <Chat />
-                <h5>Time Left: 10:20</h5>
-                <Route path={`${match.path}/screen/:player_id`}>
-                    <Focus players={players} path={match.url} />
-                </Route>
+        <div class="container">
+            <div class="row">
+               
+                    <div
+                        className="container"
+                        style={{
+                            height: '100%',
+                        }}
+                    >
+                    
+                        <h5>Time Left: 10:20</h5>
+                        <Route path={`${match.path}/screen/:player_id`}>
+                            <Focus players={players} path={match.url} />
+                        </Route>
 
-                <Route exact path={`${match.path}/`}>
-                    <Gallery players={players} />
-                </Route>
+                        <Route exact path={`${match.path}/`}>
+                            <Gallery players={players} />
+                        </Route>
+                    </div>
+            
+                    <Chat />
+                
             </div>
+        </div>
+            
         </>
     )
 }

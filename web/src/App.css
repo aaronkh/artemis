@@ -4,7 +4,6 @@ body {
     font-family: Poppins;
     background: #000;
     color: #fff;
-    height: 100%;
     font-family: Poppins;
 }
 
@@ -112,30 +111,63 @@ body {
 .chat {
     background: #2d2d2d;
     height: 100vh;
-    width: 20vw;
-    position: fixed;
-    left: 79vw;
-    bottom: 1vh;
+    width: 311px;
+    display: flex; 
+    position: fixed; 
+    top: 0; 
+    right: 0;
 }
+.chat-header{
+  margin-top: 20px;
+  margin-left: 20px;
+}
+.chat-form{
 
-#chat-input {
-    flex-grow: 1;
+    display: flex; 
+    height: 3rem; 
+    position: fixed; 
+    bottom: 0; 
+    right: 0;
+}
+.chat-input {
     border: none;
     padding: 0 1rem;
-    border-radius: 2rem;
-    margin: 0.25rem;
-    margin-top: 90vh;
-    position: fixed;
-    width: 19vw;
+    width: 311px;
+}
+.chat-messages{
+    list-style-type: none; 
+    margin-left: -110px;
+    padding-top: 50px;
+
 }
 
-#chat-input:focus {
+
+
+.chat-names{
+    color: grey;
+    font-size: 10px;
+}
+
+.incoming-message{
+    padding: 0.5rem 1rem;
+    background-color: rgb(173, 255, 153);
+    color: black;
+    margin-top: 20px;
+    width: 250px;
+    
+}
+.outgoing-message{
+    padding: 0.5rem 1rem;
+    background-color: rgb(253, 231, 255);
+    color: black;
+    margin-top: 20px;
+    width: 250px;
+    margin-left: 60px;
+    
+}
+
+.chat-input:focus {
     outline: none;
-}
-
-.chat-header {
-    margin-top: 40px;
-    margin-left: 20px;
 }
 
 .splash {
