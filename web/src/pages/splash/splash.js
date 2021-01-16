@@ -7,15 +7,11 @@ function Splash() {
     const [err, setErr] = useState('')
 
     useEffect(() => {
-        socket.on('connect', () => {
-            console.log('yay')
-        })
         socket.on('error', (error) => {
             setErr(error.error)
         })
 
         return function cleanup() {
-            socket.off('connect')
             socket.off('error')
         }
     })

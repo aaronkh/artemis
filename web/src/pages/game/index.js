@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouteMatch, Link, Route, Switch } from 'react-router-dom'
 
+import socket from '../../lib/socket'
+
 import Frame, { FullFrame } from './frame'
 import Chat from './chat/chat'
-import '../../App.css'
 
 const PLAYERS = [
     {
@@ -30,18 +31,51 @@ function Game() {
 
     const [players, setPlayers] = useState(PLAYERS)
 
+    useEffect(() => {
+        socket.emit('load game', {
+            id: id,
+        })
+
+        socket.on('load game', (game) => {
+            setPlayers(game.players)
+        })
+
+        socket.on('code', (update) => {
+            const uid = update.uid
+            const code = update.code
+            for (let i = 0; i < players.length; ++i) {
+                if (players[i] === uid) {
+                    players[i].code = code
+                    break
+                }
+            }
+            setPlayers([...players])
+        })
+
+        socket.on('game over', () => {})
+
+        socket.on('voting over', () => {})
+
+        return function cleanup() {
+            socket.off('load game')
+            socket.off('code')
+            socket.off('game over')
+            socket.off('voting over')
+        }
+    })
+
     return (
        
             
             <div className="container">
-            <Chat /> 
+                <Chat /> 
                 <h5>Time Left: 10:20</h5>
                 <Route path={`${match.path}/screen/:player_id`}>
                     <Focus players={players} path={match.url} />
                 </Route>
                 
                 <Route exact path={`${match.path}/`}>
-                    <Gallery players={players} />    
+                    <Gallery players={players} />
                 </Route>
             </div>
            
