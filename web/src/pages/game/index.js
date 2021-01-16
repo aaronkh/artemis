@@ -65,11 +65,16 @@ function Game() {
     })
 
     return (
-        <div>
+        <>
             <div className="chat">
                 <Chat />
             </div>
-            <div className="container">
+            <div
+                className="container"
+                style={{
+                    height: '100%',
+                }}
+            >
                 <h5>Time Left: 10:20</h5>
                 <Route path={`${match.path}/screen/:player_id`}>
                     <Focus players={players} path={match.url} />
@@ -78,31 +83,67 @@ function Game() {
                     <Gallery players={players} />
                 </Route>
             </div>
-        </div>
+        </>
     )
 }
 
 function Gallery({ players }) {
     const match = useRouteMatch()
+    let code = `
+    <!doctype html>
+    <html>
+    <head>
+    </head>
+    <body>
+    <h1>this is a test</h1>
+    <h2>not really but</h2>
+    <p>sometimes i am</p>
+    </body>
+    </html>
+    `
 
     return (
         <div className="row">
             {players.map((player) => (
                 <Link to={`${match.url}/screen/${player.uid}`}>
-                    <Frame player={player} />
+                    <Frame code={code} player={player} />
                 </Link>
             ))}
         </div>
     )
 }
 
-function Focus({ path, players }) {
+function Focus({ path, players, code }) {
     const { player_id } = useParams()
+    code = `
+    <!doctype html>
+    <html>
+    <head>
+    <style>
+    h1 {
+    color: red
+    }
+    </style>
+    </head>
+    <body>
+    <h1>this is a test</h1>
+    <h2>not really but</h2>
+    <p>sometimes i am</p>
+    </body>
+    </html>
+    `
 
     return (
         <>
-            <Link to={path}>Back</Link>
-            <FullFrame player={players[player_id]} />
+            <div
+                className="col-10"
+                style={{
+                    height: '100%',
+                }}
+            >
+                <Link to={path}>Back</Link>
+                <FullFrame code={code} player={players[player_id]} />
+            </div>
         </>
     )
 }

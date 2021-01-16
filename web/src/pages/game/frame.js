@@ -1,24 +1,34 @@
-function Frame(props) {
+function Frame({ code, player }) {
     return (
         <div className="col-6">
-            <div>
-                <div className="website"></div>
-                {props.player.winner && <div className="badge">Winner</div>}
+            <div className="small-frame-container">
+                <iframe
+                    srcdoc={code}
+                    title={player.name}
+                    className="iframe small-frame"
+                    width={1000}
+                    height={600}
+                />
+                {player.winner && <div className="badge">Winner</div>}
             </div>
-            <p className="frame-name">{props.player.name}</p>
+            <p className="frame-name">{player.name}</p>
         </div>
     )
 }
 
-function FullFrame(props) {
+function FullFrame({ code, player }) {
     return (
-        <div>
-            <div>
-                <div className="website"></div>
-                {props.player.winner && <div className="badge">Winner</div>}
+        <>
+            <div style={{ height: '100%' }}>
+                <iframe
+                    srcdoc={code}
+                    title={player.name}
+                    className="iframe full-frame"
+                />
+                {player.winner && <div className="badge">Winner</div>}
+                <p className="frame-name">{player.name}</p>
             </div>
-            <p className="frame-name">{props.player.name}</p>
-        </div>
+        </>
     )
 }
 
