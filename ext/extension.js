@@ -1,37 +1,27 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const Provider = require('./Provider');
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 
-/**
- * @param {vscode.ExtensionContext} context
- */
+// Within panel... do stuff
+// If panel open and joined in a (ready) game then send user code
+
 function activate(context) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "coding-in-the-dark" is now active!');
-
+	const provider = new Provider(context.extensionPath)
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('coding-in-the-dark.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Coding in the Dark!');
+	let disposable = vscode.commands.registerCommand('coding-in-the-dark.startPlaying', function () {
+		try{provider.activateWindows(vscode.window)}catch(e) {console.log(e)}
+		// Progress API to log state of the timer
 	});
-
 	context.subscriptions.push(disposable);
+
+	vscode.window.showInformationMessage('Run "Code in the Dark!" from the command palette to get started!');
 }
+
+
+// VS Code requires both exports and module.exports...
 exports.activate = activate;
-
-// this method is called when your extension is deactivated
-function deactivate() {}
-
 module.exports = {
 	activate,
-	deactivate
 }
