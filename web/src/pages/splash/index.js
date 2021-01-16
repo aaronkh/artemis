@@ -12,6 +12,7 @@ function Splash() {
     })
 
     const onSubmit = () => {
+        console.log('spectating')
         socket.emit('spectate', {
             id: game,
         })
@@ -58,7 +59,10 @@ function Splash() {
                         onChange={(e) => setGame(e.target.value)}
                         required
                     />
-                    <button className="splash-input form-control btn">
+                    <button
+                        className="splash-input form-control btn"
+                        onClick={onSubmit}
+                    >
                         Spectate
                     </button>
                 </div>

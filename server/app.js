@@ -1,16 +1,14 @@
 const express = require('express')
-const path = require('path')
 const cors = require('cors')
 
 const app = express()
-
-const HashMap = require('hashmap')
-let games = new HashMap()
-
-const PORT = process.env.PORT || 8080
-
+const sockServer = require('http').Server(app)
+const io = require('socket.io')(sockServer, { origins: '*:*' })
 app.use(express.json())
 
+var HashMap = require('hashmap')
+const { time } = require('console')
+let games = new HashMap()
 /*
 games
 {
@@ -43,23 +41,6 @@ games
  * })
  *
  * */
-
-if (process.env.NODE_ENV === 'production') {
-    // Serve React production bundle
-    app.use(express.static(path.join(__dirname, 'build')))
-    app.get('/*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'build', 'index.html'))
-    })
-} else {
-    app.get('/', (req, res) => {
-        res.json({ message: 'hello world!' })
-    })
-}
-
-const server = app.listen(PORT, () =>
-    console.log(`server started on port ${PORT}`)
-)
-const io = require('socket.io')(server, { origins: '*:*' })
 
 /* Socket.io logic
  *
@@ -99,21 +80,6 @@ io.on('connection', (socket) => {
         }
     })
 
-    // spectator
-    socket.on('spectate', (game) => {
-        /*
-         * {
-         *      id: string
-         * }
-         * */
-        if (!games.get(game.id))
-            return socket.emit('error', {
-                error: 'game does not exist',
-            })
-        console.log('spectating')
-        socket.join(`/game/${game.id}/spectate`)
-    })
-
     socket.on('code update', (player_code) => {
         /* player code expected in the form of 
         {
@@ -127,11 +93,11 @@ io.on('connection', (socket) => {
             if (current_players[i].uid == player_code.uid) {
                 games.get(player_code.id).players[i].code = player_code.code
                 socket
-                    .to('/game/' + player_code.id + '/spectate')
+                    .to('/game/:' + player_code.id + '/spectate')
                     .emit('code', {
                         uid: player_code.uid,
                         code: player_code.code,
-                    })
+                    }) //sends uid and code to spectator room
                 break
             }
         }
@@ -157,20 +123,16 @@ io.on('connection', (socket) => {
         }
         games.get(msg.id).ready = all_ready
         if (all_ready) {
-            socket.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            let time_amount = 900000 // 15 minutes
+            setTimeout(() => {
+                socket.to('/game/:' + msg.id).emit('gameover')
+                time_amount = 60000 // 1 minute
+                setTimeout(() => {
+                    socket.to('/game/:' + msg.id).emit('voting over')
+                }, time_amount)
+            }, time_amount)
+            socket.to('/game/:' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
         }
-    })
-
-    socket.on('chat message', (msg_data) => {
-        /* msg_data expected in the form of 
-        {
-            "id": string,
-            "uid": string,
-            "msg": bool
-        }
-        */
-        socket.to('/game/:' + msg_data.id).emit('chat message', msg_data)
-        console.log('message: ' + msg)
     })
 
     socket.on('disconnect', () => {
@@ -178,3 +140,7 @@ io.on('connection', (socket) => {
     })
     //return true
 })
+
+io.listen(process.env.WSPORT || 5000)
+
+app.listen(process.env.PORT || 8080, () => console.log('server started'))
