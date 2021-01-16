@@ -1,0 +1,45 @@
+html,
+body {
+    height: 100%;
+    font-family: Poppins;
+    background: #000;
+    color: #fff;
+}
+
+body {
+    height: 100%;
+    font-family: Poppins;
+}
+
+#root {
+    height: 100%;
+    font-family: Poppins;
+}
+
+.navbar-brand {
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.nav-link {
+    color: #fff !important;
+}
+
+.website {
+    cursor: pointer;
+    width: 500px;
+    height: 350px;
+    background: #eee;
+}
+
+.frame-name {
+    font-weight: 500;
+}
+
+.badge {
+    position: absolute;
+    top: 0;
+    height: 50px;
+    border-radius: 50%;
+    background: #fff;
+}
