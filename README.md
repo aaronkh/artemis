@@ -39,7 +39,7 @@ Coding in the Dark is built from a variety of components including:
 During quarantine we can have fun with friends and practice coding at the same time! Without the ability to go out to competitions we now get to have a way of hunkering down at home and having fun coding with other people. With spectators and voting, this is a great way to connect with others and have fun with friends.
 
 ## What we learned
-1. Wait... web sockets are just socks for the web?
+1. Wait... web sockets are not just socks for the web?
 2. React isn’t just javascript
 3. Bootstrap can help!
 4. Friendship and Teamwork ;D
