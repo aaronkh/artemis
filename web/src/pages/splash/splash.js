@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
+import toast, { Toaster } from 'react-hot-toast'
 import socket from '../../lib/socket'
 
 function Splash() {
     const [name, setName] = useState('')
     const [game, setGame] = useState('')
-    const [err, setErr] = useState('')
 
     useEffect(() => {
         socket.on('error', (error) => {
-            setErr(error.error)
+            toast.error(error.error)
         })
 
         return function cleanup() {
@@ -47,24 +47,6 @@ function Splash() {
                 </h1>
 
                 <div className="offset-3 col-6">
-                    {err && (
-                        <div
-                            className="alert alert-danger alert-dismissable fade show"
-                            role="alert"
-                        >
-                            {err}
-                            <button
-                                type="button"
-                                className="close"
-                                data-dismiss="alert"
-                                aria-label="Close"
-                                onClick={() => setErr('')}
-                            >
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    )}
-
                     <input
                         placeholder="Name"
                         className="splash-input form-control"
@@ -89,6 +71,7 @@ function Splash() {
                     </button>
                 </div>
             </div>
+            <Toaster />
         </div>
     )
 }

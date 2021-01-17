@@ -84,7 +84,8 @@ io.on('connection', (socket) => {
         */
         if (games.has(player_data.id)) {
             if (games.get(player_data.id).players.length < 8) {
-                games.get(player_data.id).players.push(player_data.player)
+                games.get(player_data.id).players.push(player_data.player);
+                socket.join(`/game/${player_data.di}`);
             } else {
                 console.log('ERROR: Game room full')
             }
@@ -95,7 +96,8 @@ io.on('connection', (socket) => {
                 players: [player_data.player],
                 time: new Date(),
                 ready: false,
-            })
+            });
+            socket.join(`/game/${player_data.di}`);
         }
     })
 
@@ -139,7 +141,7 @@ io.on('connection', (socket) => {
         for (let i = 0; i < current_players.length; i++) {
             if (current_players[i].uid === player_code.uid) {
                 games.get(player_code.id).players[i].code = player_code.code
-                io.to('/game/' + player_code.id + '/spectate').emit('code', {
+                io.to( `/game/${player_code.id}/spectate`).emit('code', {
                     uid: player_code.uid,
                     code: player_code.code,
                 })
@@ -168,16 +170,16 @@ io.on('connection', (socket) => {
         }
         games.get(msg.id).ready = all_ready
         if (all_ready) {
-            io.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            io.to(`/game/${msg.id}`).emit('all ready'); //sends the all ready signal to the game room with the received game id
 
-            let time_amount = 900000 // 15 minutes
+            let time_amount = 900000; // 15 minutes
             setTimeout(() => {
-                io.to('/game/' + msg.id).emit('game over')
-                io.to('/game/' + msg.id + '/spectate').emit('game over')
+                io.to(`/game/${msg.id}`).emit('game over')
+                io.to(`/game/${msg.id}/spectate`).emit('game over')
                 time_amount = 60000 // 1 minute
                 setTimeout(() => {
-                    io.to('/game/' + msg.id).emit('voting over')
-                    io.to('/game/' + msg.id + '/spectate').emit('voting over')
+                    io.to(`/game/${msg.id}`).emit('voting over')
+                    io.to(`/game/${msg.id}/spectate`).emit('voting over')
                 }, time_amount)
             }, time_amount)
         }
