@@ -44,6 +44,25 @@ function Game() {
     const [modalOpen, setModalOpen] = useState(false)
 
     useEffect(() => {
+        switch (phase) {
+            case PHASE.WAITING:
+                document.title = 'Coding in the Dark | Waiting...'
+                break
+            case PHASE.PLAYING:
+                document.title = 'Coding in the Dark | Battle!'
+                break
+            case PHASE.VOTING:
+                document.title = 'Coding in the Dark | Vote for your favorite'
+                break
+            case PHASE.FINISHED:
+                document.title = 'Coding in the Dark | Results'
+                break
+            default:
+                break
+        }
+    })
+
+    useEffect(() => {
         // save clear interval
         let timer
 
@@ -102,6 +121,7 @@ function Game() {
 
                 socket.on('game over', (game) => {
                     // retrieve new voting times
+                    clearInterval(timer)
                     timer = createTimer(game)
 
                     setPhase(PHASE.VOTING)
@@ -258,7 +278,7 @@ function Gallery({ players, game, phase, voted, onVote }) {
         <>
             {phase !== PHASE.WAITING && (
                 <>
-                    <a href={`/${game.image}`} target="_blank" rel="noreferrer">
+                    <a href={`${game.image}`} target="_blank" rel="noreferrer">
                         <img
                             alt="Website Screenshot"
                             src={game.image}

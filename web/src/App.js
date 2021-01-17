@@ -11,6 +11,13 @@ function Navbar() {
     return (
         <nav className="navbar navbar-expand-lg navbar-light navbar-transparent">
             <Link to="/" className="navbar-brand">
+                <img
+                    src="/logo.png"
+                    width="30"
+                    height="30"
+                    alt="Logo"
+                    style={{ marginRight: '15px' }}
+                />
                 Coding in the Dark
             </Link>
             <button
