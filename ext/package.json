@@ -26,11 +26,14 @@
 				"coding-in-the-dark.url": {
 					"type": "string",
 					"default": "",
+					"pattern": "^https?:\\/\\/[a-zA-Z\\.\\/0-9:]+$",
 					"description": "Code submission URL"
 				},
 				"coding-in-the-dark.time-limit": {
 					"type": "integer",
 					"default": 900,
+					"minimum": 60,
+					"maximum": 3600,
 					"description": "Time given per game (seconds)"
 				}
 			}

@@ -49,7 +49,7 @@ const style = `
 `
 const js = `
     document.querySelector('#results').addEventListener('click', () => {
-        vscode.postMessage({type: 'open'})
+        vscode.postMessage({type: 'open-spectator'})
     })
     document.querySelector('#play-again').addEventListener('click', () => {
         vscode.postMessage({type: 'play-again'})
