@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useParams, useRouteMatch, Link, Route, Switch } from 'react-router-dom'
+import {
+    useHistory,
+    useParams,
+    useRouteMatch,
+    Link,
+    Route,
+    Switch,
+} from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 
 import socket from '../../lib/socket'
@@ -11,18 +18,66 @@ const PLAYERS = [
     {
         name: 'Devin',
         uid: 0,
+        code: `
+    <!doctype html>
+    <html>
+    <head>
+    </head>
+    <body>
+    <h1>this is not a test</h1>
+    <h2>not really but</h2>
+    <p>sometimes i am</p>
+    </body>
+    </html>
+    `,
     },
     {
         name: 'Aaron',
         uid: 1,
+        code: `
+    <!doctype html>
+    <html>
+    <head>
+    </head>
+    <body>
+    <h1>this is a test</h1>
+    <h2>not really but</h2>
+    <p>sometimes i am</p>
+    </body>
+    </html>
+    `,
     },
     {
         name: 'Skylar',
         uid: 2,
+        code: `
+    <!doctype html>
+    <html>
+    <head>
+    </head>
+    <body>
+    <h1>this is a test</h1>
+    <h2>not really but</h2>
+    <p>sometimes i am</p>
+    </body>
+    </html>
+    `,
     },
     {
         name: 'Crystal',
         uid: 3,
+        code: `
+    <!doctype html>
+    <html>
+    <head>
+    </head>
+    <body>
+    <h1>this is a test</h1>
+    <h2>not really but</h2>
+    <p>sometimes i am</p>
+    </body>
+    </html>
+    `,
     },
 ]
 
@@ -30,7 +85,8 @@ function Game() {
     const { id } = useParams()
     const match = useRouteMatch()
 
-    const [players, setPlayers] = useState(PLAYERS)
+    // const [players, setPlayers] = useState(PLAYERS)
+    const [players, setPlayers] = useState([])
 
     useEffect(() => {
         const getGame = async () => {
@@ -48,16 +104,9 @@ function Game() {
                     id: id,
                 })
 
-                socket.on('code', (update) => {
-                    const uid = update.uid
-                    const code = update.code
-                    for (let i = 0; i < players.length; ++i) {
-                        if (players[i] === uid) {
-                            players[i].code = code
-                            break
-                        }
-                    }
-                    setPlayers([...players])
+                socket.on('code', (game) => {
+                    const p = game.players
+                    setPlayers([...p])
                 })
 
                 socket.on('game over', () => {})
@@ -80,8 +129,18 @@ function Game() {
 
     return (
         <>
-            <div className="container">
-                <div className="row">
+            <div
+                className="container"
+                style={{
+                    height: '100%',
+                }}
+            >
+                <div
+                    className="row"
+                    style={{
+                        height: '100%',
+                    }}
+                >
                     <div
                         className="container"
                         style={{
@@ -110,49 +169,27 @@ function Game() {
 
 function Gallery({ players }) {
     const match = useRouteMatch()
-    let code = `
-    <!doctype html>
-    <html>
-    <head>
-    </head>
-    <body>
-    <h1>this is a test</h1>
-    <h2>not really but</h2>
-    <p>sometimes i am</p>
-    </body>
-    </html>
-    `
-
     return (
         <div className="row">
             {players.map((player) => (
                 <Link to={`${match.url}/screen/${player.uid}`}>
-                    <Frame code={code} player={player} />
+                    <Frame player={player} />
                 </Link>
             ))}
         </div>
     )
 }
 
-function Focus({ path, players, code }) {
+function Focus({ path, players }) {
+    const history = useHistory()
     const { player_id } = useParams()
-    code = `
-    <!doctype html>
-    <html>
-    <head>
-    <style>
-    h1 {
-    color: red
-    }
-    </style>
-    </head>
-    <body>
-    <h1>this is a test</h1>
-    <h2>not really but</h2>
-    <p>sometimes i am</p>
-    </body>
-    </html>
-    `
+
+    useEffect(() => {
+        for (const player of players) {
+            if (player.uid === Number(player_id)) return
+        }
+        history.push(path)
+    }, [])
 
     return (
         <>
@@ -163,7 +200,7 @@ function Focus({ path, players, code }) {
                 }}
             >
                 <Link to={path}>Back</Link>
-                <FullFrame code={code} player={players[player_id]} />
+                <FullFrame player={players[player_id]} />
             </div>
         </>
     )

@@ -20,7 +20,6 @@ function Chat({ id }) {
 
     useEffect(() => {
         socket.on('chat message', function (message) {
-            console.log(message)
             let chatMessages = messages
             chatMessages.push(message)
             setMessages([...chatMessages])
