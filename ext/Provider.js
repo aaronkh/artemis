@@ -273,6 +273,11 @@ class Provider {
             const end_time = Date.parse(data.end_time)
             let uri = path.join(__dirname, 'skeleton.html')
             uri = vscode.Uri.file(uri)
+            this._sendMessage({
+                type: 'content', 
+                image: data.image, 
+                assets: data.assets
+            })
             vscode.workspace.openTextDocument({
                 language: 'html',
                 content: require('./skeleton')()
