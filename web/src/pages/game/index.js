@@ -81,14 +81,30 @@ const PLAYERS = [
     },
 ]
 
+const PHASE = {
+    WAITING: 'WAITING',
+    PLAYING: 'PLAYING',
+    VOTING: 'VOTING',
+    FINISHED: 'FINISHED',
+}
+
 function Game() {
     const { id } = useParams()
     const match = useRouteMatch()
 
-    // const [players, setPlayers] = useState(PLAYERS)
-    const [players, setPlayers] = useState([])
+    const [timeLeft, setTimeLeft] = useState(-1)
+    const [players, setPlayers] = useState(PLAYERS)
+    const [phase, setPhase] = useState(PHASE.WAITING)
+    // const [players, setPlayers] = useState([])
 
     useEffect(() => {
+        // clear interval
+        let timer
+
+        const timerUpdate = () => {
+            if (timeLeft > 0) setTimeLeft(timeLeft - 1)
+        }
+
         const getGame = async () => {
             try {
                 const res = await fetch(`/game/${id}/exists`)
@@ -104,14 +120,44 @@ function Game() {
                     id: id,
                 })
 
-                socket.on('code', (game) => {
-                    const p = game.players
-                    setPlayers([...p])
+                socket.on('ready', (game) => {
+                    // in seconds
+                    const diff = Math.abs(
+                        (new Date(game.end_time) - new Date()) / 1000
+                    )
+                    setTimeLeft(diff)
+                    timer = setInterval(timerUpdate, 1000)
                 })
 
-                socket.on('game over', () => {})
+                socket.on('code', (game) => {
+                    // joined midway in game
+                    if (phase === PHASE.WAITING) {
+                        const diff = Math.abs(
+                            (new Date(game.end_time) - new Date()) / 1000
+                        )
+                        setTimeLeft(diff)
+                        timer = setInterval(timerUpdate, 1000)
+                        setPhase(PHASE.PLAYING)
+                    }
+                    const p = game.players
+                    // setPlayers([...p])
+                })
 
-                socket.on('voting over', () => {})
+                socket.on('game over', (game) => {
+                    // retrieve new voting times
+                    const diff = Math.abs(
+                        (new Date(game.end_time) - new Date()) / 1000
+                    )
+                    setTimeLeft(diff)
+                    timer = setInterval(timerUpdate, 1000)
+
+                    setPhase(PHASE.VOTING)
+                })
+
+                socket.on('voting over', () => {
+                    clearInterval(timer)
+                    setPhase(PHASE.FINISHED)
+                })
             } catch (e) {
                 console.error(e)
                 return toast.error('Something went wrong...')
@@ -120,6 +166,9 @@ function Game() {
 
         getGame()
         return function cleanup() {
+            // clear timer if set
+            if (!(phase === PHASE.WAITING || phase === PHASE.FINISHED))
+                clearInterval(timer)
             socket.off('load game')
             socket.off('code')
             socket.off('game over')
