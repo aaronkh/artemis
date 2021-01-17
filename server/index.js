@@ -240,10 +240,11 @@ io.on('connection', (socket) => {
 
         // PLAYING
         if (all_ready) {
-            let time_amount = 900000 // 15 minutes
-            const start_time = new Date()
-            let end_time = start_time
-            end_time.setMinutes(end_time.getMinutes() + time_amount / 60 / 1000)
+            let time_amount = 15 // 15 minutes
+            let start_time = new Date().toISOString()
+            let end_time = new Date(
+                start_time.getTime() + time_amount * 60 * 1000
+            ).toISOString()
 
             games.get(player.id).start_time = start_time
             games.get(player.id).end_time = end_time
@@ -257,12 +258,11 @@ io.on('connection', (socket) => {
 
             // VOTING
             setTimeout(() => {
-                time_amount = 60000 // 1 minute
-                const start_time = new Date()
-                let end_time = start_time
-                end_time.setMinutes(
-                    end_time.getMinutes() + time_amount / 60 / 1000
-                )
+                time_amount = 1 // 1 minute
+                start_time = new Date().toISOString()
+                end_time = new Date(
+                    start_time.getTime() + time_amount * 60 * 1000
+                ).toISOString()
 
                 games.get(player.id).phase = PHASE.VOTING
                 games.get(player.id).start_time = start_time
@@ -289,8 +289,8 @@ io.on('connection', (socket) => {
                         'voting over',
                         games.get(player.id)
                     )
-                }, time_amount)
-            }, time_amount)
+                }, time_amount * 60 * 1000)
+            }, time_amount * 60 * 1000)
         }
     })
 
