@@ -3,7 +3,10 @@ const Template = require("./Template");
 const html = `
 <div id="main">
     <div id="waiting">
-        <h1 id="please-wait"> Please wait... </h1>
+        <div class="header">
+            <h1 id="please-wait"> Please wait... </h1>
+            <div>ID: <span style="margin-left: 8px">{{gameId}}</span></div>
+        </div>
         <p> 
             The game will start as soon as everyone's ready.
         <p>
@@ -14,7 +17,10 @@ const html = `
         </p>
     </div>
     <div id="game" class="invisible">
-        <h1 id="time">15:00 remaining</h1>
+        <div class="header">
+            <h1 id="time">15:00 remaining</h1>
+            <div>ID: <span style="margin-left: 8px">{{gameId}}</span></div>
+        </div>
         <p>Try to copy the site below <b>without</b> running your code.</p>
     </div>
     </div>
@@ -25,6 +31,16 @@ const css = `
     }
     code {
         font-size: 1.2rem
+    }
+    .header {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .header > h1 {
+        flex-grow: 1;
+    }
+    .header > div {
+        align-self: center;
     }
     .body,
     html {

@@ -62,6 +62,7 @@ class Provider {
         let js = null
         switch (m.type) {
             case 'play-again':
+                if(this.socket) this.socket.close()
                 this.player = {
                     name: '',
                     id: ''
@@ -79,7 +80,7 @@ class Provider {
                         this._initSocket(i)
                         this._loadHTML(
                             PAGES['game'],
-                            this.player
+                            {...this.player, gameId: this.gameId}
                         )
                     } else {
                         throw Error('something wrong w join')
@@ -101,7 +102,7 @@ class Provider {
                         this._initSocket(i)
                         this._loadHTML(
                             PAGES['game'],
-                            this.player
+                            {...this.player, gameId: this.gameId}
                         )
                     } else {
                         throw Error('something wrong w create')

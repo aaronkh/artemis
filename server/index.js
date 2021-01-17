@@ -197,7 +197,7 @@ io.on('connection', (socket) => {
                 error: 'The game does not exist!',
             })
 
-        if (games.get(player.id) !== PHASE.WAITING)
+        if (games.get(player.id).phase !== PHASE.WAITING)
             return socket.emit('error', {
                 error: 'The game has already started',
             })
@@ -220,7 +220,7 @@ io.on('connection', (socket) => {
                 error: 'The game does not exist!',
             })
 
-        if (games.get(player.id) !== PHASE.WAITING)
+        if (games.get(player.id).phase !== PHASE.WAITING)
             return socket.emit('error', {
                 error: 'The game has already started',
             })
@@ -240,13 +240,14 @@ io.on('connection', (socket) => {
         // PLAYING
         if (all_ready) {
             let time_amount = 15 // 15 minutes
-            let start_time = new Date().toISOString()
+            let start_time = new Date()
             let end_time = new Date(
                 start_time.getTime() + time_amount * 60 * 1000
-            ).toISOString()
+            )
 
             games.get(player.id).start_time = start_time.toISOString()
             games.get(player.id).end_time = end_time.toISOString()
+            games.get(player.id).phase = PHASE.PLAYING
 
             io.in('/game/' + player.id).emit('ready', games.get(player.id)) //sends the all ready signal to the game room with the received game id
 
@@ -258,14 +259,13 @@ io.on('connection', (socket) => {
             // VOTING
             setTimeout(() => {
                 time_amount = 1 // 1 minute
-                start_time = new Date().toISOString()
+                start_time = new Date()
                 end_time = new Date(
                     start_time.getTime() + time_amount * 60 * 1000
-                ).toISOString()
-
+                )
                 games.get(player.id).phase = PHASE.VOTING
-                games.get(player.id).start_time = start_time
-                games.get(player.id).end_time = end_time
+                games.get(player.id).start_time = start_time.toISOString()
+                games.get(player.id).end_time = end_time.toISOString()
 
                 io.in('/game/' + player.id).emit(
                     'game over',
