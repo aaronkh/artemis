@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
         if (!games.has(player_data.id))
             return socket.emit('error', { error: 'The game does not exist' })
 
-        if (games.get(player_data.id).players.length >= room_size) {
+        if (games.get(player_data.id).players.length >= room_size) 
             return socket.emit('error', { error: 'The game room is full' })
         games.get(player_data.id).players.push(player_data.player)
     })
