@@ -5,7 +5,8 @@ const html = `
 <div id="main">
     <div id="game" class="">
         <h1 id="time">Time's up!</h1>
-        <p>This game of Coding in the Dark has ended. Click <a href="" id="results">here</a> to cast your votes and see your results.</p>
+        <p>This game of Coding in the Dark has ended.</p>
+        <p>Click <a href="" id="results">here</a> to cast your votes and see your results.</p>
         <div class="button" id="play-again">Play again</div>
     </div>
 </div>

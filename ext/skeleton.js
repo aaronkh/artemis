@@ -1,4 +1,4 @@
-<!-- DO NOT CLOSE THIS EDITOR TAB -->
+module.exports = () => `<!-- DO NOT CLOSE THIS EDITOR TAB -->
 <!-- Only changes made in here will be sent to server -->
 <!DOCTYPE html>
 <html>
@@ -21,4 +21,4 @@
     </script>
 </body>
 
-</html>
+</html>`

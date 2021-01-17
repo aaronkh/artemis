@@ -129,7 +129,6 @@ createBtn.addEventListener('click', async () => {
         type: 'create',
         name: name.value.trim()
     })
-    console.error('create', 'Not Implemented')
 })
 
 joinBtn.addEventListener('click', async () => {
@@ -150,7 +149,6 @@ joinBtn.addEventListener('click', async () => {
         id: code.value.trim(),
         name: name.value.trim()
     })
-    console.error('join', 'Not Implemented')
 })
 `
 const Splash = new Template(html, styles, `(() => {${script}})()`)

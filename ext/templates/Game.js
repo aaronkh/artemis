@@ -2,10 +2,10 @@ const Template = require("./Template");
 
 const html = `
 <div id="main">
-    <div id="waiting" class="invisibule">
+    <div id="waiting">
         <h1 id="please-wait"> Please wait... </h1>
         <p> 
-            We'll begin as soon as everyone's ready.
+            The game will start as soon as everyone's ready.
         <p>
         <div class="button">Ready</div>
         <p> 
@@ -14,7 +14,7 @@ const html = `
         </p>
     </div>
     <div id="game" class="invisible">
-        <h1 id="time">14:30 remaining</h1>
+        <h1 id="time">15:00 remaining</h1>
         <p>Try to copy the site below <b>without</b> running your code.</p>
     </div>
     </div>
@@ -83,7 +83,6 @@ const rdyButton = document.querySelector('.button')
 const content = document.querySelector('#content')
 
 document.getElementById('sign-out').addEventListener('click', () => vscode.postMessage({type: 'sign-out'}))
-vscode.postMessage({type: 'game'})
 
 rdyButton.addEventListener('click', async () => {
     if(!isReady) { // Send ready signal
@@ -98,8 +97,11 @@ rdyButton.addEventListener('click', async () => {
     isReady = !isReady
 })
 
-window.addEventListener('message', (m) => {
-    if(m.type === 'time') updateTimer(m.time)
+window.addEventListener('message', ({data}) => {
+    const m = data
+    if(m.type === 'time') {
+        updateTimer(m.time)
+    }
 })
 window.addEventListener('message', m => {
     if(m.type === 'content') loadContent(m.content)
@@ -111,7 +113,7 @@ function loadContent(c) {
 
 function updateTimer(time) {
     // Send reminders
-    const reminderTimes = []
+    const reminderTimes = [10, 30, 60, 120, 5 * 60, 10 * 60]
     if(reminderTimes.includes(time))
         vscode.postMessage({
             type: 'time-reminder',
@@ -126,6 +128,10 @@ function updateTimer(time) {
     else if(s<10) t+='0'+s
     else t+=s
     document.getElementById('time').innerText = t + ' remaining'
+
+    console.log('t', time)
+    document.querySelector('#game').classList.remove('invisible')
+    document.querySelector('#waiting').classList.add('invisible')
 }
 `
 

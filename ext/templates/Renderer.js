@@ -18,16 +18,9 @@ const SHELL = `
         </div>
        <script>
        const vscode = acquireVsCodeApi()
-       let listeners = []
        
        window.addEventListener('message', ({data}) => {
             if(data.type !== 'render') return 
-
-            // Clear old message listeners (except this one)
-            for(const l of listeners) {
-              window.removeEventListener('message', l)
-            }
-
             const {html, css, js} = data
             // Replace HTML 
             document.getElementById('body').innerHTML = html
@@ -36,6 +29,7 @@ const SHELL = `
             // Replace JS
             eval(js)
        })
+
     </script>
     </body>
 </html>

@@ -2,7 +2,8 @@ const vscode = require('vscode')
 const fetch = require('node-fetch')
 const path = require('path')
 const io = require('socket.io-client');
-const Renderer = require('./templates/Renderer')
+const Renderer = require('./templates/Renderer');
+const { start } = require('repl');
 
 const PAGES = {
     splash: require('./templates/Splash'),
@@ -21,6 +22,7 @@ class Provider {
             name: 'Aaron',
             id: ''
         }
+        this.waitingJoin = false
         this.socket = null
     }
 
@@ -39,19 +41,9 @@ class Provider {
 
         panel.webview.html = Renderer
         panel.webview.onDidReceiveMessage(m => this._onMessage(m).catch(({ e, err }) => this._error(e + (console.error(err) || ''))))
-        if (this.gameId && this.player.id) {
-            // Game has already started  
-            this._loadHTML(
-                PAGES['game'],
-                player)
-        } else if (this.gameId && !this.player.id) {
-            this._loadHTML(PAGES['end'])
-        } else {
-            // Load landing page
-            this._loadHTML(
-                PAGES['splash'],
-            )
-        }
+        // Load landing page
+        this.waitingJoin = false
+        this._loadHTML(PAGES['splash'])
 
         // Remember to clear listeners!
         panel.onDidDispose(() => this.dispose())
@@ -69,14 +61,12 @@ class Provider {
         let res = null
         let js = null
         switch (m.type) {
-            case 'game': 
-                this._initSocket(io())
-                break
             case 'play-again':
                 this.player = {
                     name: '',
                     id: ''
                 }
+                this.waitingJoin = false
                 this._loadHTML(PAGES['splash'])
                 break
             case 'join':
@@ -84,6 +74,9 @@ class Provider {
                     res = await fetch(this.url + `/game/${m.id}/exists`)
                     if ((await res.json()).success) {
                         this.gameId = m.id
+                        this.player.name = m.name
+                        const i = io(this.url, { rejectUnauthorized: false })
+                        this._initSocket(i)
                         this._loadHTML(
                             PAGES['game'],
                             this.player
@@ -103,6 +96,9 @@ class Provider {
                 try {
                     if (js.game) {
                         this.gameId = js.game
+                        this.player.name = m.name
+                        const i = io(this.url, { rejectUnauthorized: false })
+                        this._initSocket(i)
                         this._loadHTML(
                             PAGES['game'],
                             this.player
@@ -115,10 +111,10 @@ class Provider {
                 }
                 break
             case 'ready':
+                console.log(this.gameId)
                 this._sendSocket('ready', {
                     id: this.gameId,
                     uid: this.player.id,
-                    ready: true
                 })
                 break
             case 'unready':
@@ -133,6 +129,8 @@ class Provider {
                     name: '',
                     id: ''
                 }
+                if(this.socket) this.socket.close()
+                this.waitingJoin = false
                 this._loadHTML(PAGES['splash'])
                 break
             case 'time-reminder':
@@ -149,9 +147,10 @@ class Provider {
     }
 
     _updateTime(startTime, editor) {
+        console.log('time', startTime)
         this._sendMessage({
             type: 'time',
-            time: startTime
+            time: startTime/1000
         })
         const code = editor.document.getText()
         this._sendSocket('code update', {
@@ -162,15 +161,16 @@ class Provider {
 
         if (startTime < 500) {
             // Redirect to end screen 
-            if (panel) {
+            if (this.panel) {
                 this.player = {}
                 this._loadHTML(PAGES['end'])
+                if (this.sock) this.sock.close()
             }
             return
         }
 
-        window.setTimeout(() => {
-            this._updateTime(startTime - 1000)
+        setTimeout(() => {
+            this._updateTime(startTime - 1000, editor)
         }, 1000);
     }
 
@@ -203,31 +203,66 @@ class Provider {
     }
 
     _initSocket(sock) {
+        if (this.socket) {
+            this.socket.close()
+            sock = null
+        }
+        sock.onAny((event, args) => {
+            console.log(`got ${event} ${JSON.stringify(args)}`);
+        });
+
         sock.on('disconnect', () => {
-            this.socket = null 
+            this.socket = null
+            this.player.id = ''
+            console.log('disconnected')
+            this._error(e, `Disconnected. Automatically trying to reconnect...`)
         })
         sock.on('connect', () => {
-            console.log('connected')  
             this.socket = sock
+            this.player.id = sock.id
+            console.log('connected')
+            if (!this.waitingJoin) {
+                sock.emit('join', { id: this.gameId, name: this.player.name })
+                this.waitingJoin = true
+            }
+        })
+        sock.on('connect_error', (e) => {
+            this._error(e, 'Couldn\'t join the game. Please try again later.')
+            this.socket = null
+            this.player.id = ''
+            this._loadHTML(pages['splash'])
+            this.waitingJoin = false
         })
         sock.on('game over', () => {
             // Not needed, will handle client-side
-            this._loadHTML(PAGES['end'], )
+            this._loadHTML(PAGES['end'],)
+            this.waitingJoin = false
+            sock.close()
         })
-        sock.on('error', ({error}) => {
-          // Redirect back to start screen  
-          vscode.window.showWarningMessage(error)
+        sock.on('error', ({ error }) => {
+            // Redirect back to start screen  
+            this._error('Error from server: ' + error, error)
+            this._loadHTML(pages['splash'])
+            this.waitingJoin = false
         })
-        sock.on('ready', ({start_time, end_time}) => {
+        sock.on('ready', (data) => {
             // Open new editor with template code
-            const uri = path.join(__dirname, 'skeleton.html')
+            const start_time = Date.parse(data.start_time)
+            const end_time = Date.parse(data.end_time)
+            let uri = path.join(__dirname, 'skeleton.html')
             uri = vscode.Uri.file(uri)
-            vscode.workspace.openTextDocument(uri).then(doc => {
+            vscode.workspace.openTextDocument({
+                language: 'html',
+                content: require('./skeleton')()
+            })
+            .then(doc => 
                 vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside })
-            })
+            )
             .then(editor => {
-                this._updateTime(end_time - start_time, editor)
+                const seconds = (end_time - start_time)
+                this._updateTime(seconds, editor)
             })
+            .catch(e => console.log('err', e))
         })
     }
 }
