@@ -1,5 +1,4 @@
-# <img src="https://cdn.discordapp.com/attachments/794784858894893056/800304877661061130/logo.png" alt="drawing" style="width:40px; "/> Code in the Dark  
-
+# Code in the Dark  
 _Blind HTML/CSS... competitively_
 
 
@@ -41,6 +40,7 @@ Coding in the Dark is built from a variety of components including:
 3. What is this React you speak of?
 
 ## Accomplishments that we are proud of
+![](https://media.giphy.com/media/l0He0cVv8lGggpruo/giphy.gif)
 During quarantine we can have fun with friends and practice coding at the same time! Without the ability to go out to competitions we now get to have a way of hunkering down at home and having fun coding with other people. With spectators and voting, this is a great way to connect with others and have fun with friends.
 
 ## What we learned
