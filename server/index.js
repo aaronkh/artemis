@@ -52,8 +52,8 @@ app.get('/game/:id/:uid/sign-out', (req, res) => {
     // Should prevent arbitrary people from signing others out
     const game = games.get(req.params.id)
     if (game) {
-        const arr = game.players.filter((p) => p.uid == req.params.uid)
-        if (arr.length == game.players.length)
+        const arr = game.players.filter((p) => p.uid === req.params.uid)
+        if (arr.length === game.players.length)
             return res.json({ success: false })
         if (arr.length) {
             game.players = arr
@@ -133,7 +133,6 @@ io.on('connection', (socket) => {
 
         if (games.get(player.id).players.length >= room_size)
             return socket.emit('error', { error: 'The game room is full' })
-
         const player_object = {
             name: player.name,
             uid: socket.id,
@@ -229,8 +228,8 @@ io.on('connection', (socket) => {
         let current_players = games.get(player.id).players
         let all_ready = true
         for (let i = 0; i < current_players.length; i++) {
-            if (current_players[i].uid === player.ui) {
-                games.get(player.id).players[i].ready = player.ready //update the ready for the player that sent the ready signal
+            if (current_players[i].uid === player.uid) {
+                games.get(player.id).players[i].ready = true //update the ready for the player that sent the ready signal
             }
             if (!games.get(player.id).players[i].ready) {
                 all_ready = false //if any player is not ready set all ready to false so the all ready message isnt sent to the game room
@@ -246,8 +245,8 @@ io.on('connection', (socket) => {
                 start_time.getTime() + time_amount * 60 * 1000
             ).toISOString()
 
-            games.get(player.id).start_time = start_time
-            games.get(player.id).end_time = end_time
+            games.get(player.id).start_time = start_time.toISOString()
+            games.get(player.id).end_time = end_time.toISOString()
 
             io.in('/game/' + player.id).emit('ready', games.get(player.id)) //sends the all ready signal to the game room with the received game id
 
