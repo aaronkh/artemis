@@ -43,6 +43,6 @@ There is always room to improve!
 * Improving challenges
 * Tournaments and prizes?
 * Account system
-* Kahoot Music
-* Difficulty Level of Website
+* Music
+* Difficulty Levels
 * Practice Mode
