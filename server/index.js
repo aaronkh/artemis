@@ -215,7 +215,10 @@ io.on('connection', (socket) => {
             })
 
         for (let p of games.get(player.id).players) {
-            if (p.uid === player.uid) return (p.ready = false)
+            if (p.uid === player.uid) {
+                p.ready = false
+                break
+            }
         }
 
         io.in('/game/' + player.id + '/spectate').emit(
@@ -242,11 +245,6 @@ io.on('connection', (socket) => {
                 error: 'The game has already started',
             })
 
-        io.in('/game/' + player.id + '/spectate').emit(
-            'code',
-            games.get(player.id)
-        )
-
         let current_players = games.get(player.id).players
         let all_ready = true
         for (let i = 0; i < current_players.length; i++) {
@@ -257,6 +255,12 @@ io.on('connection', (socket) => {
                 all_ready = false //if any player is not ready set all ready to false so the all ready message isnt sent to the game room
             }
         }
+
+        io.in('/game/' + player.id + '/spectate').emit(
+            'code',
+            games.get(player.id)
+        )
+
         games.get(player.id).ready = all_ready
 
         // PLAYING
