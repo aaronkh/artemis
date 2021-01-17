@@ -16,6 +16,7 @@ const SHELL = `
     <body>
         <div id="body"></div>
        <script>
+       const url = {{url}}
        const vscode = acquireVsCodeApi()
        let listeners = []
        

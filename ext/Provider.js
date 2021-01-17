@@ -1,6 +1,7 @@
 const vscode = require('vscode')
 const path = require('path')
 const Renderer = require('./templates/Renderer')
+const End = require('./templates/End')
 
 const PAGES = {
     splash: require('./templates/End'),
@@ -10,6 +11,9 @@ const PAGES = {
 
 class Provider {
     constructor() {
+        const cfg = vscode.workspace.getConfiguration('coding-in-the-dark')
+        console.log(cfg)
+        this.url = cfg
         this.windowActive = false
         this.gameId = ''
         this.player = {
@@ -85,9 +89,7 @@ class Provider {
                 // TODO: send ready signal to server
                 break
             case 'unready':
-                break
-            case 'end':
-                // Redirect to end screen
+                // TODO: send unready signal to server
                 break
             case 'sign-out':
                 this.player = {
@@ -99,7 +101,7 @@ class Provider {
                 break
             case 'time-reminder':
                 if (m.time > 60)
-                    vscode.window.showInformationMessage(`${Math.floor(m.time / 60)} minutes re.`)
+                    vscode.window.showInformationMessage(`${Math.floor(m.time / 60)} minutes remaining.`)
                 else
                     vscode.window.showInformationMessage(`${m.time} seconds remaining.`)
                 break
@@ -116,6 +118,11 @@ class Provider {
                     })
                     .catch(e => console.error('error', e))
                 break
+            case 'open-spectator':
+                // TODO: get actual spectator URL
+                uri = vscode.Uri.parse('https://www.google.com')
+                vscode.commands.executeCommand('vscode.open', uri)
+                break
         }
     }
 
@@ -127,7 +134,14 @@ class Provider {
         // TODO: send this to server
         const text = editor.document.getText()
 
-        if (startTime < 500) return
+        if (startTime < 500) {
+            // Redirect to end screen 
+            if(panel) {
+                this._loadHTML(End)
+            }
+            return    
+        }
+        
         window.setTimeout(() => {
             this._updateTime(startTime - 1000)
         }, 1000);
@@ -146,7 +160,7 @@ class Provider {
         // Render each part of data then pass into 
         // message event
         const payload = page.render(data)
-        this._sendMessage({ type: 'render', ...payload })
+        this._sendMessage({ type: 'render', url: this.url, ...payload })
     }
 }
 
