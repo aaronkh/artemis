@@ -278,7 +278,7 @@ function Gallery({ players, game, phase, voted, onVote }) {
         <>
             {phase !== PHASE.WAITING && (
                 <>
-                    <a href={`/${game.image}`} target="_blank" rel="noreferrer">
+                    <a href={`${game.image}`} target="_blank" rel="noreferrer">
                         <img
                             alt="Website Screenshot"
                             src={game.image}

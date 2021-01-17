@@ -8,13 +8,13 @@ const challenge = [
         assets: ['http://dreamworks.com/images/default/signup-trolls.jpg'],
     },
     {
-        image: 'Wikipedia.png',
+        image: '/Wikipedia.png',
         assets: [
             'https://upload.wikimedia.org/wikipedia/commons/2/2d/RBPotter.jpg',
         ],
     },
     {
-        image: 'NatGeo.png',
+        image: '/NatGeo.png',
         assets: [
             'https://assets.nationalgeographic.com/styleguide/stable/logos/ng-logo-2fl.svg',
             'https://icons.nationalgeographic.com/icons/v1/user/333333',
@@ -26,7 +26,7 @@ const challenge = [
         ],
     },
     {
-        image: 'Microsoft.png',
+        image: '/Microsoft.png',
         assets: [
             'https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE4sQDc?ver=30c2&q=90&m=6&h=40&w=40&b=%23FFFFFFFF&l=f&o=t&aim=true',
             'https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE4pndL?ver=5217&q=90&m=6&h=40&w=40&b=%23FFFFFFFF&l=f&o=t&aim=true',
