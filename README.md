@@ -11,11 +11,13 @@ Being stuck at home in quarantine we bring you **Artemis**, a VS Code extension 
 
 With all competitions going online, we are passionate about bringing everyone an at-home web design competition experience. Without the ability to see your friends in person or go out to public competitions, we bring you a way to have that joy in your own home. Join up with your friends in a call and see what each of you design. Vote on your favorites and laugh together over the failures. In the end, practice your skills and have a fun competition. 
 
-We were greatly inspired by the coding competition: **Code in the Dark** and wanted to make this more available to people. Especially during this pandemic, we see competitions moving to online and so we made a coding competition application that you could play with anyone. With a simple, clean interface we bring to you **Artemis** where you can show off your web design skills right at your desk at home! 
+We were greatly inspired by the coding competition: [**Code in the Dark**](http://codeinthedark.com/) and wanted to make this more available to people. Especially during this pandemic, we see competitions moving to online and so we made a coding competition application that you could play with anyone. With a simple, clean interface we bring to you **Artemis** where you can show off your web design skills right at your desk at home! 
 
 ## What it does
-Simply install our extension on VS Code and join a game. Play with your friends or strangers in a real-time online coding environment. By seeing how others build their websites, you'll get a first-hand look into web design techniques.    
-Create or join a room to begin a competition. Once everyone signals that they are ready, the competition starts. You are given a certain amount of time to design and build the website shown to you. The players are not allowed to preview their HTML/CSS code so it can create some fun and interesting outcomes.     
+Install our extension on VS Code and join a game. Play with your friends or strangers in a real-time online coding environment. By seeing how others build their websites, you'll get a first-hand look into web design techniques.    
+Create or join a room to begin a competition. Once everyone signals that they are ready, the competition starts.
+
+The game is simple. You are given a certain amount of time to build the website shown to you. You're not allowed to preview your HTML/CSS code (...which can lead to some fun and _interesting_ outcomes).     
 
 Even those with no experience can join competitions as a spectator to learn the basics of HTML/CSS before they compete. Spectators can view competitions, chat with other members of the audience, and cast votes for the winners. It's a fun and interactive way to learn from others and connect with the web development community. You'll gain experience by viewing how competitors are designing their website and make new friends in the spectator chat. We all need some more social interaction being isolated at home.
 
