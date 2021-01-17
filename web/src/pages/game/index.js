@@ -42,6 +42,22 @@ function Game() {
                 const data = await res.json()
                 if (!data.success) return toast.error('Game does not exist!')
                 toast.success('Spectating game')
+
+                socket.on('code', (update) => {
+                    const uid = update.uid
+                    const code = update.code
+                    for (let i = 0; i < players.length; ++i) {
+                        if (players[i] === uid) {
+                            players[i].code = code
+                            break
+                        }
+                    }
+                    setPlayers([...players])
+                })
+
+                socket.on('game over', () => {})
+
+                socket.on('voting over', () => {})
             } catch (e) {
                 console.error(e)
                 return toast.error('Something went wrong...')
@@ -49,35 +65,18 @@ function Game() {
         }
 
         getGame()
-
-        socket.on('code', (update) => {
-            const uid = update.uid
-            const code = update.code
-            for (let i = 0; i < players.length; ++i) {
-                if (players[i] === uid) {
-                    players[i].code = code
-                    break
-                }
-            }
-            setPlayers([...players])
-        })
-
-        socket.on('game over', () => {})
-
-        socket.on('voting over', () => {})
-
         return function cleanup() {
             socket.off('load game')
             socket.off('code')
             socket.off('game over')
             socket.off('voting over')
         }
-    })
+    }, [])
 
     return (
         <>
-            <div class="container">
-                <div class="row">
+            <div className="container">
+                <div className="row">
                     <div
                         className="container"
                         style={{

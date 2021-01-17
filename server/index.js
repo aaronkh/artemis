@@ -45,7 +45,11 @@ app.post('/game', (req, res) => {
     const size = 4
     let id
     do {
-        id = crypto.randomBytes(size).toString('hex').slice(0, size)
+        id = crypto
+            .randomBytes(size)
+            .toString('hex')
+            .slice(0, size)
+            .toUpperCase()
     } while (games.has(id))
 
     games.set(id, {
