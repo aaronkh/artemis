@@ -157,7 +157,9 @@ io.on('connection', (socket) => {
             })
         console.log(`spectating ${game.id}`)
         socket.join(`/game/${game.id}/spectate`)
-        socket.emit('code', games.get(game.id))
+
+        if (games.get(game.id).phase !== PHASE.WAITING)
+            socket.emit('code', games.get(game.id))
     })
 
     socket.on('code update', (player) => {

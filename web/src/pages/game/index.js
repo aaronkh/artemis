@@ -3,7 +3,6 @@ import {
     useHistory,
     useParams,
     useRouteMatch,
-    Link,
     Route,
     Switch,
 } from 'react-router-dom'
@@ -14,7 +13,7 @@ import socket from '../../lib/socket'
 import Frame, { FullFrame } from './frame'
 import Chat from './chat'
 
-import PLAYERS from './players'
+// import PLAYERS from './players'
 
 const PHASE = {
     WAITING: 'WAITING',
@@ -27,15 +26,14 @@ function Game() {
     const { id } = useParams()
     const match = useRouteMatch()
 
-    const [timeLeft, setTimeLeft] = useState(-1)
-    const [players, setPlayers] = useState(PLAYERS)
-    const [phase, setPhase] = useState(PHASE.FINISHED)
+    const [timeLeft, setTimeLeft] = useState(0)
+    // const [players, setPlayers] = useState(PLAYERS)
+    const [players, setPlayers] = useState([])
+    const [phase, setPhase] = useState(PHASE.WAITING)
     const [voted, setVoted] = useState(false)
 
-    // const [players, setPlayers] = useState([])
-
     useEffect(() => {
-        // clear interval
+        // save clear interval
         let timer
 
         const createTimer = (game) => {
@@ -76,6 +74,7 @@ function Game() {
                 })
 
                 socket.on('code', (game) => {
+                    console.log(game)
                     // joined midway in game
                     if (phase === PHASE.WAITING) {
                         timer = createTimer(game)
@@ -191,36 +190,65 @@ function Game() {
 function Gallery({ players, phase, voted, onVote }) {
     const match = useRouteMatch()
     return (
-        <div className="row">
-            {players.map((player) => (
-                <Frame
-                    player={player}
-                    phase={phase}
-                    to={`${match.url}/screen/${player.uid}`}
-                    voted={voted}
-                    onVote={(p) => {
-                        onVote(p)
-                    }}
-                />
-            ))}
-        </div>
+        <>
+            {phase === PHASE.WAITING && (
+                <a
+                    href="https://raw.githubusercontent.com/aaronkh/coding-in-the-dark/master/docs/Microsoft.png?token=ACAU5PQLMHJZODTRJBBVD33ABUN5Y"
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    <img
+                        alt="Website Screenshot"
+                        src="https://raw.githubusercontent.com/aaronkh/coding-in-the-dark/master/docs/Microsoft.png?token=ACAU5PQLMHJZODTRJBBVD33ABUN5Y"
+                        className="img-fluid"
+                        style={{
+                            width: '50%',
+                            display: 'block',
+                            margin: '0 auto',
+                        }}
+                    />
+                </a>
+            )}
+            <p
+                className="text-center"
+                style={{
+                    marginTop: '15px',
+                }}
+            >
+                Goal
+            </p>
+            <div className="row">
+                {players.map((player) => (
+                    <Frame
+                        player={player}
+                        phase={phase}
+                        to={`${match.url}/screen/${player.uid}`}
+                        voted={voted}
+                        onVote={(p) => {
+                            onVote(p)
+                        }}
+                    />
+                ))}
+            </div>
+        </>
     )
 }
 
 function Focus({ path, players, phase }) {
     const history = useHistory()
     const { player_id } = useParams()
+    const [player, setPlayer] = useState({})
 
     useEffect(() => {
-        for (const player of players) {
-            if (player.uid === Number(player_id)) return
+        for (const p of players) {
+            if (p.uid === player_id) return setPlayer(p)
         }
         history.push(path)
-    }, [])
+    }, [player])
 
     return (
         <>
-            <FullFrame player={players[player_id]} phase={phase} path={path} />
+            <FullFrame player={player} phase={phase} path={path} />
         </>
     )
 }

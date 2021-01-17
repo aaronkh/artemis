@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import socket from '../../../lib/socket'
 import ReactScrollableFeed from 'react-scrollable-feed'
+
+import { Picker } from 'emoji-mart'
+import 'emoji-mart/css/emoji-mart.css'
+
 function Message({ message }) {
     return (
         <li
@@ -16,6 +20,7 @@ function Message({ message }) {
 
 function Chat({ id }) {
     const [input, setInput] = useState('')
+    const [openEmoji, setOpenEmoji] = useState(false)
     const [messages, setMessages] = useState([])
 
     useEffect(() => {
@@ -25,10 +30,9 @@ function Chat({ id }) {
             setMessages([...chatMessages])
         })
     }, [])
-   
+
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
-            
             if (input) {
                 let chatMessages = messages
 
@@ -44,10 +48,11 @@ function Chat({ id }) {
                 chatMessages.push(message)
                 setMessages([...chatMessages])
                 setInput('')
+                setOpenEmoji(false)
             }
         }
     }
-   
+
     return (
         <div className="chat">
             <h5 className="chat-header">Chat</h5>
@@ -57,8 +62,22 @@ function Chat({ id }) {
                         <Message message={message} />
                     ))}
                 </ReactScrollableFeed>
-                    
             </ul>
+            {openEmoji && (
+                <div className="emoji-picker-container">
+                    <Picker
+                        style={{
+                            position: 'absolute',
+                            bottom: '50px',
+                            right: '0px',
+                        }}
+                        onSelect={(emoji) => {
+                            setInput(input + emoji.native)
+                        }}
+                        theme="dark"
+                    />
+                </div>
+            )}
             <div className="chat-form">
                 <input
                     className="chat-input"
@@ -71,6 +90,14 @@ function Chat({ id }) {
                     onKeyPress={handleKeyPress}
                     autocomplete="off"
                 />
+                <div
+                    className="emoji-picker-button"
+                    onClick={() => {
+                        setOpenEmoji(!openEmoji)
+                    }}
+                >
+                    🍆
+                </div>
             </div>
         </div>
     )
