@@ -1,14 +1,16 @@
 const express = require('express')
 const path = require('path')
 const cors = require('cors')
+const HashMap = require('hashmap')
+const crypto = require('crypto')
 
 const app = express()
 
-const HashMap = require('hashmap')
 let games = new HashMap()
 
 const PORT = process.env.PORT || 8080
 
+app.use(cors())
 app.use(express.json())
 
 /*
@@ -30,19 +32,31 @@ games
 }
 */
 
-/* HTTP Methods
- *
- * app.get('/path', (req, res) => {
- *      // do stuff
- *      res.send(200)
- *  })
- *
- * app.post('/path', (req, res) => {
- *      // do stuff
- *      res.send(req.body)
- * })
- *
- * */
+// check for existence of game
+app.get('/game/:id/exists', (req, res) => {
+    res.json({
+        success: games.has(req.params.id),
+    })
+})
+
+// create game
+app.post('/game', (req, res) => {
+    // generate unique id
+    const size = 4
+    let id
+    do {
+        id = crypto.randomBytes(size).toString('hex').slice(0, size)
+    } while (games.has(id))
+
+    games.set(id, {
+        players: [],
+        time: new Date(),
+        ready: false,
+    })
+    res.json({
+        game: id,
+    })
+})
 
 if (process.env.NODE_ENV === 'production') {
     // Serve React production bundle
@@ -82,20 +96,14 @@ io.on('connection', (socket) => {
             }
         }
         */
-        if (games.has(player_data.id)) {
-            if (games.get(player_data.id).players.length < 8) {
-                games.get(player_data.id).players.push(player_data.player)
-            } else {
-                console.log('ERROR: Game room full')
-            }
+        const room_size = 8
+        if (!games.has(player_data.id))
+            return socket.emit('error', { error: 'The game does not exist' })
+
+        if (games.get(player_data.id).players.length < room_size) {
+            games.get(player_data.id).players.push(player_data.player)
         } else {
-            console.log('Game id does not exist. Creating new game.')
-            games.set(player_data.id, {
-                id: player_data.id,
-                players: [player_data.player],
-                time: new Date(),
-                ready: false,
-            })
+            socket.emit('error', { error: 'The game room is full' })
         }
     })
 
@@ -112,72 +120,62 @@ io.on('connection', (socket) => {
             })
         console.log(`spectating ${game.id}`)
         socket.join(`/game/${game.id}/spectate`)
-        socket.emit('spectate', {
-            msg: `Spectating ${game.id}`,
-        })
+        socket.emit('code', games.get(game.id))
     })
 
-    // initial request
-    socket.on('load game', (game) => {
-        /*
-         * {
-         *      "id": int
-         * }
-         * */
-        socket.emit('load game', game.get(game.id))
-    })
-
-    socket.on('code update', (player_code) => {
+    socket.on('code update', (player) => {
         /* player code expected in the form of 
         {
-            "id": string,
+            "id": string, // game id
             "uid": string,
             "code": string
         }
         */
-        let current_players = games.get(player_code.id).players
+        let current_players = games.get(player.id).players
         for (let i = 0; i < current_players.length; i++) {
-            if (current_players[i].uid === player_code.uid) {
-                games.get(player_code.id).players[i].code = player_code.code
-                io.to('/game/' + player_code.id + '/spectate').emit('code', {
-                    uid: player_code.uid,
-                    code: player_code.code,
-                })
+            if (current_players[i].uid === player.uid) {
+                games.get(player.id).players[i].code = player.code
                 break
             }
         }
+        io.to('/game/' + player.id + '/spectate').emit(
+            'code',
+            games.get(player.id)
+        )
     })
 
-    socket.on('ready', (msg) => {
+    socket.on('ready', (player) => {
         /* msg expected in the form of 
         {
-            "id": string,
+            "id": string, // game
             "uid": string,
             "ready": bool
         }
         */
-        let current_players = games.get(msg.id).players
+        let current_players = games.get(player.id).players
         let all_ready = true
         for (let i = 0; i < current_players.length; i++) {
-            if (current_players[i].uid === msg.ui) {
-                games.get(msg.id).players[i].ready = msg.ready //update the ready for the player that sent the ready signal
+            if (current_players[i].uid === player.ui) {
+                games.get(player.id).players[i].ready = player.ready //update the ready for the player that sent the ready signal
             }
-            if (!games.get(msg.id).players[i].ready) {
+            if (!games.get(player.id).players[i].ready) {
                 all_ready = false //if any player is not ready set all ready to false so the all ready message isnt sent to the game room
             }
         }
-        games.get(msg.id).ready = all_ready
+        games.get(player.id).ready = all_ready
         if (all_ready) {
-            io.to('/game/' + msg.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            io.to('/game/' + player.id).emit('all ready') //sends the all ready signal to the game room with the received game id
 
             let time_amount = 900000 // 15 minutes
             setTimeout(() => {
-                io.to('/game/' + msg.id).emit('game over')
-                io.to('/game/' + msg.id + '/spectate').emit('game over')
+                io.to('/game/' + player.id).emit('game over')
+                io.to('/game/' + player.id + '/spectate').emit('game over')
                 time_amount = 60000 // 1 minute
                 setTimeout(() => {
-                    io.to('/game/' + msg.id).emit('voting over')
-                    io.to('/game/' + msg.id + '/spectate').emit('voting over')
+                    io.to('/game/' + player.id).emit('voting over')
+                    io.to('/game/' + player.id + '/spectate').emit(
+                        'voting over'
+                    )
                 }, time_amount)
             }, time_amount)
         }
