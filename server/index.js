@@ -3,7 +3,7 @@ const path = require('path')
 const cors = require('cors')
 const HashMap = require('hashmap')
 const crypto = require('crypto')
-const challenge = require('challenge')
+const challenge = require('./challenge')
 const app = express()
 
 let games = new HashMap()
