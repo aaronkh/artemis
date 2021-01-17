@@ -122,7 +122,6 @@ body {
   margin-left: 20px;
 }
 .chat-form{
-
     display: flex; 
     height: 3rem; 
     position: fixed; 
@@ -137,15 +136,13 @@ body {
 .chat-messages{
     list-style-type: none; 
     margin-left: -109px;
-    padding-top: 50px;
+    margin-top: 50px;
+
 
     max-height:95vh;
     overflow-y:auto;
     overflow-x:hidden;
-
 }
-
-
 
 .chat-names{
     color: grey;
