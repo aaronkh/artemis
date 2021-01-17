@@ -3,7 +3,7 @@ function Frame({ code, player }) {
         <div className="col-6">
             <div className="small-frame-container">
                 <iframe
-                    srcdoc={code}
+                    srcDoc={code}
                     title={player.name}
                     className="iframe small-frame"
                     width={1000}
@@ -21,7 +21,7 @@ function FullFrame({ code, player }) {
         <>
             <div style={{ height: '100%' }}>
                 <iframe
-                    srcdoc={code}
+                    srcDoc={code}
                     title={player.name}
                     className="iframe full-frame"
                 />

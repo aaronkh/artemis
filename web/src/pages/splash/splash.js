@@ -14,7 +14,7 @@ function Splash() {
         return function cleanup() {
             socket.off('error')
         }
-    })
+    }, [])
 
     const onSubmit = async () => {
         if (!name) return toast.error('Name is empty!')
