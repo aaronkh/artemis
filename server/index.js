@@ -60,7 +60,11 @@ app.post('/game', (req, res) => {
     const size = 4
     let id
     do {
-        id = crypto.randomBytes(size).toString('hex').slice(0, size)
+        id = crypto
+            .randomBytes(size)
+            .toString('hex')
+            .slice(0, size)
+            .toUpperCase()
     } while (games.has(id))
 
     games.set(id, {
@@ -164,8 +168,8 @@ io.on('connection', (socket) => {
         )
     })
     socket.on('chat message', (msg) => {
-        io.emit('chat message', msg);
-    });
+        io.emit('chat message', msg)
+    })
 
     socket.on('unready', (player) => {
         for (let p of games.get(player.id).players) {
@@ -217,16 +221,18 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('chat message', (msg_data) => {
+    socket.on('chat message', (msg) => {
         /* msg_data expected in the form of 
         {
             "id": string,
             "name": string,
-            "msg": bool
+            "message": string
         }
         */
-        io.to('/game/' + msg_data.id).emit('chat message', msg_data)
-        console.log('message: ' + msg_data.msg)
+        console.log(msg)
+        io.broadcast
+            .to('/game/' + msg.id + '/spectate')
+            .emit('chat message', msg.message)
     })
 
     socket.on('disconnect', () => {
