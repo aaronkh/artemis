@@ -3,7 +3,7 @@ const path = require('path')
 const cors = require('cors')
 const HashMap = require('hashmap')
 const crypto = require('crypto')
-
+const challenge = require('challenge')
 const app = express()
 
 let games = new HashMap()
@@ -30,7 +30,9 @@ games
         ],
         time: Date,
         ready: bool,
-        phase: Enum
+        phase: Enum,
+        image: string,
+        assets: [string]
     }
 }
 */
@@ -249,9 +251,11 @@ io.on('connection', (socket) => {
             games.get(player.id).start_time = start_time.toISOString()
             games.get(player.id).end_time = end_time.toISOString()
             games.get(player.id).phase = PHASE.PLAYING
-
+            let randInt = Math.floor(Math.random() * challenge.lenght);
+            games.get(player.id).image = challenge[randInt].image
+            games.get(player.id).assets = challenge[randInt].assets
             io.in('/game/' + player.id).emit('ready', games.get(player.id)) //sends the all ready signal to the game room with the received game id
-
+a
             io.in('/game/' + player.id + '/spectate').emit(
                 'ready',
                 games.get(player.id)
