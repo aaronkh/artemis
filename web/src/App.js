@@ -1,6 +1,9 @@
 import './App.css'
 import { BrowserRouter as Router, Switch, Link, Route } from 'react-router-dom'
 
+import { Provider } from 'react-redux'
+import store from './redux'
+
 import Game from './pages/game'
 import Splash from './pages/splash/splash'
 
@@ -28,9 +31,14 @@ function Navbar() {
             >
                 <ul className="navbar-nav ml-auto">
                     <li className="nav-item active">
-                        <Link className="nav-link" to="/">
+                        <a
+                            className="nav-link"
+                            href="https://marketplace.visualstudio.com/items?itemName=aaronkh.coding-in-the-dark"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
                             Download
-                        </Link>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -40,17 +48,19 @@ function Navbar() {
 
 function App() {
     return (
-        <Router>
-            <Navbar />
-            <Switch>
-                <Route path="/game/:id">
-                    <Game />
-                </Route>
-                <Route exact path="/">
-                    <Splash />
-                </Route>
-            </Switch>
-        </Router>
+        <Provider store={store}>
+            <Router>
+                <Navbar />
+                <Switch>
+                    <Route path="/game/:id">
+                        <Game />
+                    </Route>
+                    <Route exact path="/">
+                        <Splash />
+                    </Route>
+                </Switch>
+            </Router>
+        </Provider>
     )
 }
 

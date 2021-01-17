@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import socket from '../../lib/socket'
+
+import { useDispatch } from 'react-redux'
+import { join } from '../../redux/game'
 
 function Splash() {
     const [name, setName] = useState('')
     const [game, setGame] = useState('')
+
+    const dispatch = useDispatch()
+
+    const history = useHistory()
 
     useEffect(() => {
         socket.on('error', (error) => {
@@ -25,7 +33,13 @@ function Splash() {
 
             const data = await res.json()
             if (!data.success) return toast.error('Game does not exist!')
-            toast.success('Game exists')
+
+            dispatch(
+                join({
+                    name: name,
+                })
+            )
+            history.push(`/game/${game}`)
         } catch (e) {
             console.error(e)
             return toast.error('Something went wrong...')

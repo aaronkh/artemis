@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import socket from '../../../lib/socket'
 import ReactScrollableFeed from 'react-scrollable-feed'
 
+import { useStore } from 'react-redux'
+
 import { Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
 
@@ -23,6 +25,8 @@ function Chat({ id }) {
     const [openEmoji, setOpenEmoji] = useState(false)
     const [messages, setMessages] = useState([])
 
+    const store = useStore()
+
     useEffect(() => {
         socket.on('chat message', function (message) {
             let chatMessages = messages
@@ -38,7 +42,7 @@ function Chat({ id }) {
 
                 let message = {
                     id: id,
-                    name: 'name',
+                    name: store.getState().game.name,
                     message: input,
                 }
                 // send message
