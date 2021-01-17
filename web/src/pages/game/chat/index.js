@@ -48,6 +48,9 @@ function Chat({ id }) {
         }
     }
 
+
+
+
     return (
         <div className="chat">
             <h5 className="chat-header">Chat</h5>
