@@ -149,6 +149,9 @@ io.on('connection', (socket) => {
             }
         }
     })
+    socket.on('chat message', (msg) => {
+        io.emit('chat message', msg);
+    });
 
     socket.on('ready', (msg) => {
         /* msg expected in the form of 
@@ -189,7 +192,7 @@ io.on('connection', (socket) => {
         /* msg_data expected in the form of 
         {
             "id": string,
-            "uid": string,
+            "name": string,
             "msg": bool
         }
         */
