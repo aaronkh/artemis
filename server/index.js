@@ -32,11 +32,27 @@ games
 }
 */
 
+app.get('/debug', (_, res) => res.json(games))
+
 // check for existence of game
 app.get('/game/:id/exists', (req, res) => {
     res.json({
         success: games.has(req.params.id),
     })
+})
+
+app.get('/game/:id/:uid/sign-out', (req, res) => {
+    const game = games[req.params.id]
+    if(game) {
+	const arr = game.players.filter(p => p.uid == req.params.uid)
+	if(arr.length == game.players.length) return res.json({success: false})
+    	if(arr.length) {
+	    games[req.params.id].players = arr
+	} else {
+	    delete game.players
+	}
+	return res.json({success: false})
+    }
 })
 
 // create game
