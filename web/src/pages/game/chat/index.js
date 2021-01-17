@@ -20,9 +20,10 @@ function Chat({ id }) {
 
     useEffect(() => {
         socket.on('chat message', function (message) {
+            console.log(message)
             let chatMessages = messages
             chatMessages.push(message)
-            setMessages(chatMessages)
+            setMessages([...chatMessages])
         })
     }, [])
 
@@ -30,14 +31,18 @@ function Chat({ id }) {
         if (event.key === 'Enter') {
             if (input) {
                 let chatMessages = messages
-                const message = {
+
+                let message = {
                     id: id,
                     name: 'name',
                     message: input,
-                    outgoing: true,
                 }
+                // send message
+                socket.emit('chat message', message)
+
+                message.outgoing = true
                 chatMessages.push(message)
-                setMessages(chatMessages)
+                setMessages([...chatMessages])
                 setInput('')
             }
         }
@@ -68,4 +73,3 @@ function Chat({ id }) {
     )
 }
 export default Chat
-
