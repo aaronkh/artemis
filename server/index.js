@@ -171,7 +171,7 @@ io.on('connection', (socket) => {
         */
         if (!games.has(player.id))
             return socket.emit('error', {
-                error: 'Game does not exist!',
+                error: 'The game does not exist!',
             })
 
         let current_players = games.get(player.id).players
@@ -190,12 +190,12 @@ io.on('connection', (socket) => {
     socket.on('unready', (player) => {
         if (!games.has(player.id))
             return socket.emit('error', {
-                error: 'Game does not exist!',
+                error: 'The game does not exist!',
             })
 
         if (games.get(player.id) !== PHASE.WAITING)
             return socket.emit('error', {
-                error: 'Game has already started',
+                error: 'The game has already started',
             })
 
         for (let p of games.get(player.id).players) {
@@ -213,12 +213,12 @@ io.on('connection', (socket) => {
         */
         if (!games.has(player.id))
             return socket.emit('error', {
-                error: 'Game does not exist!',
+                error: 'The game does not exist!',
             })
 
         if (games.get(player.id) !== PHASE.WAITING)
             return socket.emit('error', {
-                error: 'Game has already started',
+                error: 'The game has already started',
             })
 
         let current_players = games.get(player.id).players
@@ -298,12 +298,12 @@ io.on('connection', (socket) => {
          * */
         if (!games.has(player.id))
             return socket.emit('error', {
-                error: 'Game does not exist!',
+                error: 'The game does not exist!',
             })
 
         if (games.get(player.id).phase !== PHASE.VOTING)
             return socket.emit('error', {
-                error: 'Game is still in progress',
+                error: 'The game is not in the voting phase',
             })
 
         ++games.get(player.id).votes
