@@ -14,11 +14,10 @@ const SHELL = `
     </head>
     <body>
         <div id="body">
-        <!-- Page HTML will go here */ 
+        <!-- Page HTML will go here -->
         </div>
        <script>
        const vscode = acquireVsCodeApi()
-       const socket = io()
        let listeners = []
        
        window.addEventListener('message', ({data}) => {
