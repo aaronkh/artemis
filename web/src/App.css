@@ -112,20 +112,20 @@ body {
     background: #2d2d2d;
     height: 100vh;
     width: 311px;
-    display: flex; 
-    position: fixed; 
-    top: 0; 
+    display: flex;
+    position: fixed;
+    top: 0;
     right: 0;
 }
-.chat-header{
-  margin-top: 20px;
-  margin-left: 20px;
+.chat-header {
+    margin-top: 20px;
+    margin-left: 20px;
 }
-.chat-form{
-    display: flex; 
-    height: 3rem; 
-    position: fixed; 
-    bottom: 0; 
+.chat-form {
+    display: flex;
+    height: 3rem;
+    position: fixed;
+    bottom: 0;
     right: 0;
 }
 .chat-input {
@@ -133,40 +133,35 @@ body {
     padding: 0 1rem;
     width: 311px;
 }
-.chat-messages{
-    list-style-type: none; 
+.chat-messages {
+    list-style-type: none;
     margin-left: -109px;
     margin-top: 50px;
 
-
-    max-height:89vh;
-    overflow-y:auto;
-    overflow-x:hidden;
+    max-height: 89vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.chat-names{
+.chat-names {
     color: grey;
     font-size: 10px;
 }
 
-.incoming-message{
+.incoming-message {
     padding: 0.5rem 1rem;
     background-color: rgb(173, 255, 153);
     color: black;
     margin-top: 20px;
     width: 250px;
-
-    
-    
 }
-.outgoing-message{
+.outgoing-message {
     padding: 0.5rem 1rem;
     background-color: rgb(253, 231, 255);
     color: black;
     margin-top: 20px;
     width: 250px;
     margin-left: 60px;
-    
 }
 
 .chat-input:focus {
@@ -176,4 +171,3 @@ body {
 .splash {
     text-align: center;
 }
-

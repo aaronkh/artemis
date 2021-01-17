@@ -42,16 +42,17 @@ app.get('/game/:id/exists', (req, res) => {
 app.get('/game/:id/:uid/sign-out', (req, res) => {
     // Should prevent arbitrary people from signing others out
     const game = games.get(req.params.id)
-    if(game) {
-	const arr = game.players.filter(p => p.uid == req.params.uid)
-	if(arr.length == game.players.length) return res.json({success: false})
-    	if(arr.length) {
-	    game.players = arr
-	    game.set(req.params.id, game)
-	} else {
-	    games.delete(req.params.id)
-	}
-	return res.json({success: false})
+    if (game) {
+        const arr = game.players.filter((p) => p.uid == req.params.uid)
+        if (arr.length == game.players.length)
+            return res.json({ success: false })
+        if (arr.length) {
+            game.players = arr
+            game.set(req.params.id, game)
+        } else {
+            games.delete(req.params.id)
+        }
+        return res.json({ success: false })
     }
 })
 
@@ -163,13 +164,10 @@ io.on('connection', (socket) => {
                 break
             }
         }
-        io.to('/game/' + player.id + '/spectate').emit(
+        io.in('/game/' + player.id + '/spectate').emit(
             'code',
             games.get(player.id)
         )
-    })
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg)
     })
 
     socket.on('unready', (player) => {
@@ -203,18 +201,18 @@ io.on('connection', (socket) => {
             let end_time = start_time
             end_time.setMinutes(end_time.getMinutes() + time_amount / 60 / 1000)
 
-            io.to('/game/' + player.id).emit('ready', {
+            io.in('/game/' + player.id).emit('ready', {
                 start_time: start_time.toISOString(),
                 end_time: end_time.toISOString(),
             }) //sends the all ready signal to the game room with the received game id
 
             setTimeout(() => {
-                io.to('/game/' + player.id).emit('game over')
-                io.to('/game/' + player.id + '/spectate').emit('game over')
+                io.in('/game/' + player.id).emit('game over')
+                io.in('/game/' + player.id + '/spectate').emit('game over')
                 time_amount = 60000 // 1 minute
                 setTimeout(() => {
-                    io.to('/game/' + player.id).emit('voting over')
-                    io.to('/game/' + player.id + '/spectate').emit(
+                    io.in('/game/' + player.id).emit('voting over')
+                    io.in('/game/' + player.id + '/spectate').emit(
                         'voting over'
                     )
                 }, time_amount)
@@ -231,9 +229,7 @@ io.on('connection', (socket) => {
         }
         */
         console.log(msg)
-        io.broadcast
-            .to('/game/' + msg.id + '/spectate')
-            .emit('chat message', msg.message)
+        socket.to('/game/' + msg.id + '/spectate').emit('chat message', msg)
     })
 
     socket.on('disconnect', () => {
