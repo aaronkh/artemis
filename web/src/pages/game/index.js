@@ -7,6 +7,8 @@ import {
     Switch,
 } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
+import Loader from 'react-loader-spinner'
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 
 import socket from '../../lib/socket'
 
@@ -42,6 +44,7 @@ function Game() {
     const [phase, setPhase] = useState(PHASE.WAITING)
     const [voted, setVoted] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
+    const [refresh, setRefresh] = useState(true)
 
     useEffect(() => {
         switch (phase) {
@@ -80,6 +83,7 @@ function Game() {
         }
 
         const getGame = async () => {
+            setRefresh(true)
             try {
                 const res = await fetch(`/game/${id}/exists`)
                 if (res.status >= 400)
@@ -117,6 +121,7 @@ function Game() {
                         setGame(game)
                     }
                     setPlayers([...game.players])
+                    setRefresh(false)
                 })
 
                 socket.on('game over', (game) => {
@@ -190,6 +195,19 @@ function Game() {
                 break
         }
     }
+
+    if (refresh)
+        return (
+            <div className="loader">
+                <Loader
+                    type="TailSpin"
+                    color="#3b42bf"
+                    height={100}
+                    width={100}
+                    timeout={6000}
+                />
+            </div>
+        )
 
     return (
         <>

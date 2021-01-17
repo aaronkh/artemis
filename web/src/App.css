@@ -12,6 +12,13 @@ body {
     font-family: Poppins;
 }
 
+.loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
 .navbar-brand {
     color: #fff !important;
     font-weight: 600;

@@ -22,6 +22,14 @@ const html = `
             <div>ID: <span style="margin-left: 8px">{{gameId}}</span></div>
         </div>
         <p>Try to copy the site below <b>without</b> running your code.</p>
+        <div id="assets">
+            <h4>Assets</h4>
+            <p>Use these images in your site:</p>
+            <ul>
+                
+            </ul>
+        </div>
+        <img src="" id="preview"></img
     </div>
     </div>
     <div id="content"></div>
@@ -119,13 +127,25 @@ window.addEventListener('message', ({data}) => {
         updateTimer(m.time)
     }
 })
-window.addEventListener('message', m => {
-    if(m.type === 'content') loadContent(m.content)
+window.addEventListener('message', ({data}) => {
+    const m = data
+    if(m.type === 'content') {
+        const image = m.image
+        const assets = m.assets
+        if(!assets) {
+            document.getElementById('assets').classList.add('invisible')
+        } else {
+            document.getElementById('assets').classList.remove('invisible')
+            const ul = document.querySelector('ul')
+            for(const a of assets) {
+                const li = document.createElement('li')
+                li.appendChild(document.createTextNode(a));
+                ul.appendChild(li)
+            }
+        }
+        document.getElementById('preview').src = image
+    }
 })
-
-function loadContent(c) {
-    content.innerHTML = c
-}
 
 function updateTimer(time) {
     // Send reminders

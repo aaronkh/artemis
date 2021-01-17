@@ -21,8 +21,6 @@ class Provider {
     }
 
     _init() {
-        console.log(this.int)
-
         if (this.int) { 
             clearInterval(this.int) 
         }
@@ -64,6 +62,7 @@ class Provider {
     async _onMessage(m) {
         if (!m || !m.type) console.error('Message missing type', m)
         console.log('Message received', m)
+        const cfg = vscode.workspace.getConfiguration('coding-in-the-dark')
         let uri = null
         let res = null
         let js = null
@@ -99,7 +98,14 @@ class Provider {
             case 'create':
                 try {
                     res = await fetch(url() + `/game`, {
-                        method: 'POST'
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            game_duration: Number(cfg['time-limit']) * 1000,
+                            voting_duration: Number(cfg['voting-time']) * 1000,
+                        })
                     })
                     js = await res.json()
 
@@ -267,6 +273,11 @@ class Provider {
             const end_time = Date.parse(data.end_time)
             let uri = path.join(__dirname, 'skeleton.html')
             uri = vscode.Uri.file(uri)
+            this._sendMessage({
+                type: 'content', 
+                image: data.image, 
+                assets: data.assets
+            })
             vscode.workspace.openTextDocument({
                 language: 'html',
                 content: require('./skeleton')()
