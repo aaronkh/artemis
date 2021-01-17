@@ -100,11 +100,9 @@ io.on('connection', (socket) => {
         if (!games.has(player_data.id))
             return socket.emit('error', { error: 'The game does not exist' })
 
-        if (games.get(player_data.id).players.length < room_size) {
-            games.get(player_data.id).players.push(player_data.player)
-        } else {
-            socket.emit('error', { error: 'The game room is full' })
-        }
+        if (games.get(player_data.id).players.length >= room_size) {
+            return socket.emit('error', { error: 'The game room is full' })
+        games.get(player_data.id).players.push(player_data.player)
     })
 
     // spectators
@@ -166,7 +164,7 @@ io.on('connection', (socket) => {
         if (all_ready) {
             io.to('/game/' + player.id).emit('all ready') //sends the all ready signal to the game room with the received game id
 
-            let time_amount = 900000 // 15 minutes
+            let time_amount = 900000; // 15 minutes
             setTimeout(() => {
                 io.to('/game/' + player.id).emit('game over')
                 io.to('/game/' + player.id + '/spectate').emit('game over')

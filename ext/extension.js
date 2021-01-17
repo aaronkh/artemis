@@ -1,6 +1,9 @@
 const vscode = require('vscode');
 const Provider = require('./Provider');
 
+// Get Settings
+// vscode.workspace.getConfiguration('myExtension')
+
 function activate(context) {
 	const provider = new Provider()
 	let disposable = vscode.commands.registerCommand('coding-in-the-dark.startPlaying', function () {

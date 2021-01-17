@@ -17,17 +17,22 @@ const SHELL = `
         <div id="body"></div>
        <script>
        const vscode = acquireVsCodeApi()
-
+       let listeners = []
+       
        window.addEventListener('message', ({data}) => {
-           console.log(data)
             if(data.type !== 'render') return 
+
+            // Clear old message listeners (except this one)
+            for(const l of listeners) {
+              window.removeEventListener('message', l)
+            }
+
             const {html, css, js} = data
             // Replace HTML 
             document.getElementById('body').innerHTML = html
             // Replace CSS
             document.getElementsByTagName('style')[0].innerHTML = css;
             // Replace JS
-            console.log(js)
             eval(js)
        })
     </script>
