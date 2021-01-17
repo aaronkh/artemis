@@ -109,12 +109,12 @@ class Provider {
                 // TODO: get ending time from server, send game start signal
                 uri = vscode.Uri.file(uri)
                 vscode.workspace.openTextDocument(uri).then(doc => {
-                    vscode.window.showTextDocument(doc, {viewColumn: vscode.ViewColumn.Beside})
+                    vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside })
                 })
-                .then(editor => {
-                    this._updateTime(60 * 15, editor)
-                })
-                .catch(e => console.error('error', e))
+                    .then(editor => {
+                        this._updateTime(60 * 15, editor)
+                    })
+                    .catch(e => console.error('error', e))
                 break
         }
     }
@@ -127,7 +127,7 @@ class Provider {
         // TODO: send this to server
         const text = editor.document.getText()
 
-        if(startTime < 500) return
+        if (startTime < 500) return
         window.setTimeout(() => {
             this._updateTime(startTime - 1000)
         }, 1000);

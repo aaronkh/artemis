@@ -16,8 +16,7 @@ const html = `
     </div>
     <div id="game" class="invisible">
         <h1 id="time">14:30 remaining</h1>
-        <p>Try to copy the site below <b>without</b> running your code. </p>
-        <p>Tip: click on images to copy their <code>src</code> to your clipboard.</p>
+        <p>Try to copy the site below <b>without</b> running your code.</p>
     </div>
     </div>
     <div id="content"></div>
@@ -107,10 +106,6 @@ window.addEventListener('message', m => {
 
 function loadContent(c) {
     content.innerHTML = c
-    const images = content.querySelectorAll('img')
-    images.forEach(img => {
-        img.addEventListener('click', () => navigator.clipboard.writeText(img.src))
-    })
 }
 
 function updateTimer(time) {
