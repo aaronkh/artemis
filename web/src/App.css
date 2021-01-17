@@ -71,12 +71,54 @@ body {
     height: 80%;
 }
 
-.badge {
+.badge-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
-    top: 0;
     height: 50px;
+    width: 50px;
     border-radius: 50%;
-    background: #fff;
+    background: #c6ff8c;
+    color: #000;
+}
+
+.badge-button.badge-full-frame {
+    top: 80%;
+    right: 0;
+}
+
+.badge-button.badge-small-frame {
+    top: 275px;
+    left: 475px;
+}
+
+.badge-ready {
+    height: 25px;
+    width: 25px;
+    background: #47cb64;
+    border-radius: 50%;
+}
+
+.badge-ready.badge-small-frame {
+    top: 287px;
+    left: 500px;
+}
+
+.badge-unready {
+    height: 25px;
+    width: 25px;
+    background: #ff4343;
+    border-radius: 50%;
+}
+
+.badge-unready.badge-small-frame {
+    top: 287px;
+    left: 500px;
+}
+
+.badge-voting {
+    cursor: pointer;
 }
 
 .smallTitle {
@@ -139,9 +181,9 @@ body {
     margin-top: 50px;
 
     word-wrap: break-word;
-    max-height:85vh;
-    overflow-y:auto;
-    overflow-x:hidden;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .chat-names {
@@ -155,8 +197,6 @@ body {
     color: black;
     margin-top: 20px;
     width: 250px;
-    
-
 }
 .outgoing-message {
     padding: 0.5rem 1rem;
@@ -165,8 +205,6 @@ body {
     margin-top: 20px;
     width: 250px;
     margin-left: 60px;
-
-  
 }
 
 .chat-input:focus {

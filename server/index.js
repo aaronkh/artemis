@@ -174,6 +174,11 @@ io.on('connection', (socket) => {
                 error: 'The game does not exist!',
             })
 
+        if (games.get(player.id).phase !== PHASE.PLAYING)
+            return socket.emit('error', {
+                error: 'The game is stopped',
+            })
+
         let current_players = games.get(player.id).players
         for (let i = 0; i < current_players.length; i++) {
             if (current_players[i].uid === player.uid) {
@@ -306,7 +311,11 @@ io.on('connection', (socket) => {
                 error: 'The game is not in the voting phase',
             })
 
-        ++games.get(player.id).votes
+        for (let p of games.get(player.id).players) {
+            if (player.uid === p.uid) {
+                return ++p.votes
+            }
+        }
     })
 
     socket.on('chat message', (msg) => {
