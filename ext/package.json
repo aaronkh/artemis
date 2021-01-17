@@ -7,7 +7,7 @@
 		"type": "git",
 		"url": "https://github.com/aaronkh/coding-in-the-dark"
 	},
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
@@ -18,6 +18,11 @@
 		"onCommand:coding-in-the-dark.startPlaying"
 	],
 	"main": "./extension.js",
+	"icon": "logo.png",
+	"galleryBanner": {
+		"color": "#000000",
+		"theme": "dark"
+	},
 	"contributes": {
 		"commands": [
 			{
@@ -33,6 +38,20 @@
 					"default": "http://localhost:8080",
 					"pattern": "^https?:\\/\\/[a-zA-Z\\.\\/0-9:]+$",
 					"description": "Code submission URL"
+				},
+				"coding-in-the-dark.time-limit": {
+					"type": "integer",
+					"default": 900,
+					"minimum": 60,
+					"maximum": 3600,
+					"description": "Time given per game (seconds)"
+				},
+				"coding-in-the-dark.voting-time": {
+					"type": "integer",
+					"default": 60,
+					"minimum": 10,
+					"maximum": 900,
+					"description": "Time given to vote (seconds)"
 				}
 			}
 		}
