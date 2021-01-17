@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import socket from '../../../lib/socket'
-
+import ReactScrollableFeed from 'react-scrollable-feed'
 function Message({ message }) {
     return (
         <li
@@ -25,9 +25,10 @@ function Chat({ id }) {
             setMessages([...chatMessages])
         })
     }, [])
-
+   
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
+            
             if (input) {
                 let chatMessages = messages
 
@@ -46,17 +47,17 @@ function Chat({ id }) {
             }
         }
     }
-
-
-
-
+   
     return (
         <div className="chat">
             <h5 className="chat-header">Chat</h5>
             <ul className="chat-messages">
-                {messages.map((message) => (
-                    <Message message={message} />
-                ))}
+                <ReactScrollableFeed>
+                    {messages.map((message) => (
+                        <Message message={message} />
+                    ))}
+                </ReactScrollableFeed>
+                    
             </ul>
             <div className="chat-form">
                 <input

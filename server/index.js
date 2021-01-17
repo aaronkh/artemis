@@ -23,14 +23,23 @@ games
                 "name": string,
                 "uid": string,
                 "code": string,
-                "ready": bool
+                "ready": bool,
+                "votes": int
             }
         ],
         time: Date,
-        ready: bool
+        ready: bool,
+        phase: Enum
     }
 }
 */
+
+const PHASE = {
+    WAITING: 'WAITING',
+    PLAYING: 'PLAYING',
+    VOTING: 'VOTING',
+    FINISHED: 'FINISHED',
+}
 
 // check for existence of game
 app.get('/game/:id/exists', (req, res) => {
@@ -73,6 +82,7 @@ app.post('/game', (req, res) => {
         players: [],
         time: new Date(),
         ready: false,
+        phase: PHASE.WAITING,
     })
     res.json({
         game: id,
@@ -114,6 +124,7 @@ io.on('connection', (socket) => {
             "uid": string,
             "code": string,
             "ready": bool 
+            "votes": int
         }
         */
         const room_size = 8
@@ -127,6 +138,7 @@ io.on('connection', (socket) => {
             uid: socket.id,
             code: '',
             ready: false,
+            votes: 0,
         }
         games.get(player.id).players.push(player_object)
         socket.join(`/game/${player.id}`)
@@ -156,6 +168,16 @@ io.on('connection', (socket) => {
             "code": string
         }
         */
+        if (!games.has(player.id))
+            return socket.emit('error', {
+                error: 'The game does not exist!',
+            })
+
+        if (games.get(player.id).phase !== PHASE.PLAYING)
+            return socket.emit('error', {
+                error: 'The game is stopped',
+            })
+
         let current_players = games.get(player.id).players
         for (let i = 0; i < current_players.length; i++) {
             if (current_players[i].uid === player.uid) {
@@ -170,6 +192,16 @@ io.on('connection', (socket) => {
     })
 
     socket.on('unready', (player) => {
+        if (!games.has(player.id))
+            return socket.emit('error', {
+                error: 'The game does not exist!',
+            })
+
+        if (games.get(player.id) !== PHASE.WAITING)
+            return socket.emit('error', {
+                error: 'The game has already started',
+            })
+
         for (let p of games.get(player.id).players) {
             if (p.uid === player.uid) return (p.ready = false)
         }
@@ -183,6 +215,16 @@ io.on('connection', (socket) => {
             "ready": bool
         }
         */
+        if (!games.has(player.id))
+            return socket.emit('error', {
+                error: 'The game does not exist!',
+            })
+
+        if (games.get(player.id) !== PHASE.WAITING)
+            return socket.emit('error', {
+                error: 'The game has already started',
+            })
+
         let current_players = games.get(player.id).players
         let all_ready = true
         for (let i = 0; i < current_players.length; i++) {
@@ -194,27 +236,84 @@ io.on('connection', (socket) => {
             }
         }
         games.get(player.id).ready = all_ready
+
+        // PLAYING
         if (all_ready) {
             let time_amount = 900000 // 15 minutes
             const start_time = new Date()
             let end_time = start_time
             end_time.setMinutes(end_time.getMinutes() + time_amount / 60 / 1000)
-            io.in('/game/' + player.id).emit('ready', {
-                start_time: start_time.toISOString(),
-                end_time: end_time.toISOString(),
-            }) //sends the all ready signal to the game room with the received game id
 
+            games.get(player.id).start_time = start_time.toISOString()
+            games.get(player.id).end_time = end_time.toISOString()
+
+            io.in('/game/' + player.id).emit('ready', games.get(player.id)) //sends the all ready signal to the game room with the received game id
+
+            io.in('/game/' + player.id + '/spectate').emit(
+                'ready',
+                games.get(player.id)
+            ) //sends the all ready signal to the game room with the received game id
+
+            // VOTING
             setTimeout(() => {
-                io.in('/game/' + player.id).emit('game over')
-                io.in('/game/' + player.id + '/spectate').emit('game over')
                 time_amount = 60000 // 1 minute
+                const start_time = new Date()
+                let end_time = start_time
+                end_time.setMinutes(
+                    end_time.getMinutes() + time_amount / 60 / 1000
+                )
+
+                games.get(player.id).phase = PHASE.VOTING
+                games.get(player.id).start_time = start_time
+                games.get(player.id).end_time = end_time
+
+                io.in('/game/' + player.id).emit(
+                    'game over',
+                    games.get(player.id)
+                )
+                io.in('/game/' + player.id + '/spectate').emit(
+                    'game over',
+                    games.get(player.id)
+                )
+
+                // FINISHED
                 setTimeout(() => {
-                    io.in('/game/' + player.id).emit('voting over')
+                    games.get(player.id).phase = PHASE.FINISHED
+
+                    io.in('/game/' + player.id).emit(
+                        'voting over',
+                        games.get(player.id)
+                    )
                     io.in('/game/' + player.id + '/spectate').emit(
-                        'voting over'
+                        'voting over',
+                        games.get(player.id)
                     )
                 }, time_amount)
             }, time_amount)
+        }
+    })
+
+    socket.on('vote', (player) => {
+        /*
+         * {
+         *      "id": string, // game
+         *      "uid": string // vote
+         * }
+         * */
+        if (!games.has(player.id))
+            return socket.emit('error', {
+                error: 'The game does not exist!',
+            })
+
+        if (games.get(player.id).phase !== PHASE.VOTING)
+            return socket.emit('error', {
+                error: 'The game is not in the voting phase',
+            })
+
+        for (let p of games.get(player.id).players) {
+            if (player.uid === p.uid) {
+                return ++p.votes
+            }
         }
     })
 
