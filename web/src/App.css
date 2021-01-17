@@ -139,9 +139,9 @@ body {
     margin-left: -109px;
     padding-top: 50px;
 
-    max-height:95vh;/*The important part*/
-    overflow-y:auto;/*Also...*/
-    overflow-x:hidden;/*And the end of the important part*/
+    max-height:95vh;
+    overflow-y:auto;
+    overflow-x:hidden;
 
 }
 
