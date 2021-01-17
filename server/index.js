@@ -3,7 +3,7 @@ const path = require('path')
 const cors = require('cors')
 const HashMap = require('hashmap')
 const crypto = require('crypto')
-
+const challenge = require('./challenge')
 const app = express()
 
 let games = new HashMap()
@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 8080
 
 app.use(cors())
 app.use(express.json())
-app.use(express.static('public'));
+app.use(express.static('public'))
 
 /*
 games
@@ -30,7 +30,11 @@ games
         ],
         time: Date,
         ready: bool,
-        phase: Enum
+        phase: Enum,
+        image: string,
+        assets: [string],
+        game_duration: int, ms
+        voting_duration: int, ms
     }
 }
 */
@@ -84,6 +88,8 @@ app.post('/game', (req, res) => {
         time: new Date(),
         ready: false,
         phase: PHASE.WAITING,
+        game_duration: req.body.game_duration || 15 * 60 * 1000,
+        voting_duration: req.body.voting_duration || 1 * 60 * 1000,
     })
     res.json({
         game: id,
@@ -158,7 +164,9 @@ io.on('connection', (socket) => {
             })
         console.log(`spectating ${game.id}`)
         socket.join(`/game/${game.id}/spectate`)
-        socket.emit('code', games.get(game.id))
+
+        if (games.get(game.id).phase !== PHASE.WAITING)
+            socket.emit('code', games.get(game.id))
     })
 
     socket.on('code update', (player) => {
@@ -240,18 +248,17 @@ io.on('connection', (socket) => {
 
         // PLAYING
         if (all_ready) {
-            let time_amount = 15 // 15 minutes
+            const game_duration = games.get(player.id).game_duration
             let start_time = new Date()
-            let end_time = new Date(
-                start_time.getTime() + time_amount * 60 * 1000
-            )
+            let end_time = new Date(start_time.getTime() + game_duration)
 
             games.get(player.id).start_time = start_time.toISOString()
             games.get(player.id).end_time = end_time.toISOString()
             games.get(player.id).phase = PHASE.PLAYING
-
+            let randInt = Math.floor(Math.random() * challenge.length)
+            games.get(player.id).image = challenge[randInt].image //sets the game image to be a random image from the challenges
+            games.get(player.id).assets = challenge[randInt].assets
             io.in('/game/' + player.id).emit('ready', games.get(player.id)) //sends the all ready signal to the game room with the received game id
-
             io.in('/game/' + player.id + '/spectate').emit(
                 'ready',
                 games.get(player.id)
@@ -259,11 +266,9 @@ io.on('connection', (socket) => {
 
             // VOTING
             setTimeout(() => {
-                time_amount = 1 // 1 minute
+                const voting_duration = games.get(player.id).voting_duration
                 start_time = new Date()
-                end_time = new Date(
-                    start_time.getTime() + time_amount * 60 * 1000
-                )
+                end_time = new Date(start_time.getTime() + voting_duration)
                 games.get(player.id).phase = PHASE.VOTING
                 games.get(player.id).start_time = start_time.toISOString()
                 games.get(player.id).end_time = end_time.toISOString()
@@ -289,8 +294,8 @@ io.on('connection', (socket) => {
                         'voting over',
                         games.get(player.id)
                     )
-                }, time_amount * 60 * 1000)
-            }, time_amount * 60 * 1000)
+                }, voting_duration)
+            }, game_duration)
         }
     })
 

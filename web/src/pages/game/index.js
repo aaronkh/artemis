@@ -3,7 +3,6 @@ import {
     useHistory,
     useParams,
     useRouteMatch,
-    Link,
     Route,
     Switch,
 } from 'react-router-dom'
@@ -11,10 +10,14 @@ import toast, { Toaster } from 'react-hot-toast'
 
 import socket from '../../lib/socket'
 
+import { useStore, useDispatch } from 'react-redux'
+import { join } from '../../redux/game'
+
+import Modal from 'react-modal'
 import Frame, { FullFrame } from './frame'
 import Chat from './chat'
 
-import PLAYERS from './players'
+// import PLAYERS from './players'
 
 const PHASE = {
     WAITING: 'WAITING',
@@ -26,21 +29,28 @@ const PHASE = {
 function Game() {
     const { id } = useParams()
     const match = useRouteMatch()
+    const history = useHistory()
+    const dispatch = useDispatch()
+    const store = useStore()
 
-    const [timeLeft, setTimeLeft] = useState(-1)
-    const [players, setPlayers] = useState(PLAYERS)
-    const [phase, setPhase] = useState(PHASE.FINISHED)
+    const [timeLeft, setTimeLeft] = useState(0)
+    const [name, setName] = useState('')
+
+    // const [players, setPlayers] = useState(PLAYERS)
+    const [players, setPlayers] = useState([])
+    const [game, setGame] = useState({})
+    const [phase, setPhase] = useState(PHASE.WAITING)
     const [voted, setVoted] = useState(false)
-
-    // const [players, setPlayers] = useState([])
+    const [modalOpen, setModalOpen] = useState(true)
 
     useEffect(() => {
-        // clear interval
+        // save clear interval
         let timer
 
         const createTimer = (game) => {
             // in seconds
             const diff = Math.abs((new Date(game.end_time) - new Date()) / 1000)
+            console.log(diff)
             setTimeLeft(diff)
             return setInterval(timerUpdate, 1000)
         }
@@ -56,7 +66,10 @@ function Game() {
                     throw new Error('Something went wrong...')
 
                 const data = await res.json()
-                if (!data.success) return toast.error('Game does not exist!')
+                if (!data.success) {
+                    toast.error('Game does not exist!')
+                    return history.push('/')
+                }
                 toast.success('Spectating game')
 
                 // join room
@@ -72,14 +85,17 @@ function Game() {
                     timer = createTimer(game)
                     setPhase(PHASE.PLAYING)
                     setPlayers([...game.players])
+                    setGame(game)
                     toast('Starting game')
                 })
 
                 socket.on('code', (game) => {
+                    console.log(game)
                     // joined midway in game
                     if (phase === PHASE.WAITING) {
                         timer = createTimer(game)
                         setPhase(PHASE.PLAYING)
+                        setGame(game)
                     }
                     setPlayers([...game.players])
                 })
@@ -106,7 +122,10 @@ function Game() {
             }
         }
 
+        if (!store.getState().game.name) setModalOpen(true)
+
         getGame()
+
         return function cleanup() {
             // clear timer if set
             if (!(phase === PHASE.WAITING || phase === PHASE.FINISHED))
@@ -116,6 +135,20 @@ function Game() {
             socket.off('voting over')
         }
     }, [])
+
+    const onNameSubmit = () => {
+        if (!name) return toast.error('Name is empty!')
+        dispatch(
+            join({
+                name: name,
+            })
+        )
+        setModalOpen(false)
+    }
+
+    const onNameChange = (e) => {
+        setName(e.target.value)
+    }
 
     const Status = () => {
         switch (phase) {
@@ -134,6 +167,12 @@ function Game() {
 
     return (
         <>
+            <DialogModal
+                modalOpen={modalOpen}
+                name={name}
+                onChange={(e) => onNameChange(e)}
+                onSubmit={onNameSubmit}
+            />
             <div
                 className="container"
                 style={{
@@ -167,6 +206,7 @@ function Game() {
                                     players={players}
                                     phase={phase}
                                     voted={voted}
+                                    game={game}
                                     onVote={(p) => {
                                         toast.success(
                                             `You've voted for ${p.name}'s design`
@@ -188,41 +228,125 @@ function Game() {
     )
 }
 
-function Gallery({ players, phase, voted, onVote }) {
+function Gallery({ players, game, phase, voted, onVote }) {
     const match = useRouteMatch()
+
+    if (!players.length)
+        return (
+            <>
+                <p>
+                    There's no one here yet.{' '}
+                    <a
+                        href="https://marketplace.visualstudio.com/items?itemName=aaronkh.coding-in-the-dark"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        Join the battle
+                    </a>{' '}
+                    on VS Code!
+                </p>
+            </>
+        )
+
     return (
-        <div className="row">
-            {players.map((player) => (
-                <Frame
-                    player={player}
-                    phase={phase}
-                    to={`${match.url}/screen/${player.uid}`}
-                    voted={voted}
-                    onVote={(p) => {
-                        onVote(p)
-                    }}
-                />
-            ))}
-        </div>
+        <>
+            {phase !== PHASE.WAITING && (
+                <>
+                    <a href={game.image} target="_blank" rel="noreferrer">
+                        <img
+                            alt="Website Screenshot"
+                            src={game.image}
+                            className="img-fluid"
+                            style={{
+                                width: '50%',
+                                display: 'block',
+                                margin: '0 auto',
+                            }}
+                        />
+                    </a>
+                    <p
+                        className="text-center"
+                        style={{
+                            marginTop: '15px',
+                        }}
+                    >
+                        Goal
+                    </p>
+                </>
+            )}
+            <div className="row">
+                {players.map((player) => (
+                    <Frame
+                        player={player}
+                        phase={phase}
+                        to={`${match.url}/screen/${player.uid}`}
+                        voted={voted}
+                        onVote={(p) => {
+                            onVote(p)
+                        }}
+                    />
+                ))}
+            </div>
+        </>
     )
 }
 
 function Focus({ path, players, phase }) {
     const history = useHistory()
     const { player_id } = useParams()
+    const [player, setPlayer] = useState({})
 
     useEffect(() => {
-        for (const player of players) {
-            if (player.uid === Number(player_id)) return
+        for (const p of players) {
+            if (p.uid === player_id) return setPlayer(p)
         }
         history.push(path)
-    }, [])
+    }, [player])
 
     return (
         <>
-            <FullFrame player={players[player_id]} phase={phase} path={path} />
+            <FullFrame player={player} phase={phase} path={path} />
         </>
     )
 }
 
+const DialogModal = ({ name, modalOpen, onSubmit, onChange }) => {
+    Modal.setAppElement('#root')
+    Modal.defaultStyles.overlay.backgroundColor = 'rgba(0,0,0,0.5)'
+    return (
+        <Modal
+            isOpen={modalOpen}
+            style={{
+                content: {
+                    backgroundColor: '#2d2d2d',
+                    border: 'none',
+                    top: '50%',
+                    left: '50%',
+                    paddingTop: '70px',
+                    bottom: '10%',
+                    right: '5%',
+                    transform: 'translate(-50%, -50%)',
+                },
+            }}
+        >
+            <div className="container col-6">
+                <h2 className="text-center">Join the Room</h2>
+                <input
+                    placeholder="Name"
+                    className="splash-input form-control"
+                    type="text"
+                    value={name}
+                    onChange={(e) => onChange(e)}
+                    required
+                />
+                <button
+                    className="splash-input form-control btn"
+                    onClick={onSubmit}
+                >
+                    Spectate
+                </button>
+            </div>
+        </Modal>
+    )
+}
 export default Game
