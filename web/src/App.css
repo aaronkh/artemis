@@ -138,9 +138,10 @@ body {
     margin-left: -109px;
     margin-top: 50px;
 
-    max-height: 89vh;
-    overflow-y: auto;
-    overflow-x: hidden;
+    word-wrap: break-word;
+    max-height:85vh;
+    overflow-y:auto;
+    overflow-x:hidden;
 }
 
 .chat-names {
@@ -154,6 +155,8 @@ body {
     color: black;
     margin-top: 20px;
     width: 250px;
+    
+
 }
 .outgoing-message {
     padding: 0.5rem 1rem;
@@ -162,6 +165,8 @@ body {
     margin-top: 20px;
     width: 250px;
     margin-left: 60px;
+
+  
 }
 
 .chat-input:focus {
