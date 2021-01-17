@@ -41,7 +41,7 @@ function Game() {
     const [game, setGame] = useState({})
     const [phase, setPhase] = useState(PHASE.WAITING)
     const [voted, setVoted] = useState(false)
-    const [modalOpen, setModalOpen] = useState(true)
+    const [modalOpen, setModalOpen] = useState(false)
 
     useEffect(() => {
         // save clear interval
@@ -49,8 +49,9 @@ function Game() {
 
         const createTimer = (game) => {
             // in seconds
-            const diff = Math.abs((new Date(game.end_time) - new Date()) / 1000)
-            console.log(diff)
+            const diff = Math.round(
+                (new Date(game.end_time) - new Date()) / 1000
+            )
             setTimeLeft(diff)
             return setInterval(timerUpdate, 1000)
         }
@@ -90,11 +91,10 @@ function Game() {
                 })
 
                 socket.on('code', (game) => {
-                    console.log(game)
                     // joined midway in game
                     if (phase === PHASE.WAITING) {
                         timer = createTimer(game)
-                        setPhase(PHASE.PLAYING)
+                        setPhase(game.phase)
                         setGame(game)
                     }
                     setPlayers([...game.players])
@@ -151,13 +151,19 @@ function Game() {
     }
 
     const Status = () => {
+        const s = timeLeft % 60
+        const m = Math.floor(timeLeft / 60)
+        let t = m + ':'
+        if (s === 0) t += '00'
+        else if (s < 10) t += '0' + s
+        else t += s
         switch (phase) {
             case PHASE.WAITING:
                 return <p>Waiting for all players to ready up...</p>
             case PHASE.PLAYING:
-                return <p>Time Left: {timeLeft}</p>
+                return <p>{t} min left</p>
             case PHASE.VOTING:
-                return <p>Time to Vote!</p>
+                return <p>Time to Vote! ({t} min left)</p>
             case PHASE.FINISHED:
                 return <p>The Votes are in!</p>
             default:
@@ -252,7 +258,7 @@ function Gallery({ players, game, phase, voted, onVote }) {
         <>
             {phase !== PHASE.WAITING && (
                 <>
-                    <a href={game.image} target="_blank" rel="noreferrer">
+                    <a href={`/${game.image}`} target="_blank" rel="noreferrer">
                         <img
                             alt="Website Screenshot"
                             src={game.image}
