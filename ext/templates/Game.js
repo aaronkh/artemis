@@ -10,7 +10,6 @@ const html = `
         <div class="button">Ready</div>
         <p> 
         Editing as <b>{{name}}</b>. Not you? 
-        <!-- TODO: make this button also remove from server -->
         <a id="sign-out">Sign out.</a> 
         </p>
     </div>
@@ -48,6 +47,7 @@ const css = `
     a {
         color: inherit;
         text-decoration: underline;
+        cursor: pointer;
     }
 
     .invisible {
@@ -83,6 +83,7 @@ const rdyButton = document.querySelector('.button')
 const content = document.querySelector('#content')
 
 document.getElementById('sign-out').addEventListener('click', () => vscode.postMessage({type: 'sign-out'}))
+vscode.postMessage({type: 'game'})
 
 rdyButton.addEventListener('click', async () => {
     if(!isReady) { // Send ready signal
