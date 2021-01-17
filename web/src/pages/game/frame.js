@@ -62,7 +62,10 @@ function Frame({ player = {}, phase, to, voted, onVote }) {
         <div className="col-6" style={{ marginBottom: '25px' }}>
             <div className="small-frame-container">
                 <iframe
-                    srcDoc={player.code}
+                    srcDoc={player.code.replace(
+                        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+                        ''
+                    )}
                     title={player.name}
                     className="iframe small-frame"
                     width={1000}
@@ -95,7 +98,14 @@ function FullFrame({ player = {}, phase, path }) {
             >
                 <div style={{ height: '100%' }}>
                     <iframe
-                        srcDoc={player.code}
+                        srcDoc={
+                            player.code
+                                ? player.code.replace(
+                                      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+                                      ''
+                                  )
+                                : ''
+                        }
                         title={player.name}
                         className="iframe full-frame"
                     />
