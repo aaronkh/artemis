@@ -41,14 +41,15 @@ app.get('/game/:id/exists', (req, res) => {
 
 app.get('/game/:id/:uid/sign-out', (req, res) => {
     // Should prevent arbitrary people from signing others out
-    const game = games[req.params.id]
+    const game = games.get(req.params.id)
     if(game) {
 	const arr = game.players.filter(p => p.uid == req.params.uid)
 	if(arr.length == game.players.length) return res.json({success: false})
     	if(arr.length) {
-	    games[req.params.id].players = arr
+	    game.players = arr
+	    game.set(req.params.id, game)
 	} else {
-	    delete game.players
+	    games.delete(req.params.id)
 	}
 	return res.json({success: false})
     }
