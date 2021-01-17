@@ -3,7 +3,6 @@ const fetch = require('node-fetch')
 const path = require('path')
 const io = require('socket.io-client');
 const Renderer = require('./templates/Renderer');
-const { start } = require('repl');
 
 const PAGES = {
     splash: require('./templates/Splash'),
@@ -11,19 +10,32 @@ const PAGES = {
     end: require('./templates/End')
 }
 
+function url() {
+    const cfg = vscode.workspace.getConfiguration('coding-in-the-dark')
+    return cfg.URL
+}
+
 class Provider {
     constructor() {
-        const cfg = vscode.workspace.getConfiguration('coding-in-the-dark')
-        console.log(cfg)
-        this.url = cfg.url
+        this._init()
+    }
+
+    _init() {
+        console.log(this.int)
+
+        if (this.int) { 
+            clearInterval(this.int) 
+        }
         this.windowActive = false
         this.gameId = ''
         this.player = {
-            name: 'Aaron',
+            name: '',
             id: ''
         }
         this.waitingJoin = false
-        this.socket = null
+        this.panel = null
+        this.int = -1
+        if (this.socket) this.socket.close()
     }
 
     activateWindows(window) {
@@ -46,12 +58,7 @@ class Provider {
         this._loadHTML(PAGES['splash'])
 
         // Remember to clear listeners!
-        panel.onDidDispose(() => this.dispose())
-    }
-
-    dispose() {
-        this.windowActive = false
-        this.panel = null
+        panel.onDidDispose(() => { console.log('etf'); this._init() })
     }
 
     async _onMessage(m) {
@@ -62,7 +69,7 @@ class Provider {
         let js = null
         switch (m.type) {
             case 'play-again':
-                if(this.socket) this.socket.close()
+                if (this.socket) this.socket.close()
                 this.player = {
                     name: '',
                     id: ''
@@ -72,15 +79,15 @@ class Provider {
                 break
             case 'join':
                 try {
-                    res = await fetch(this.url + `/game/${m.id}/exists`)
+                    res = await fetch(url() + `/game/${m.id}/exists`)
                     if ((await res.json()).success) {
                         this.gameId = m.id
                         this.player.name = m.name
-                        const i = io(this.url, { rejectUnauthorized: false })
+                        const i = io(url(), { rejectUnauthorized: false })
                         this._initSocket(i)
                         this._loadHTML(
                             PAGES['game'],
-                            {...this.player, gameId: this.gameId}
+                            { ...this.player, gameId: this.gameId }
                         )
                     } else {
                         throw Error('something wrong w join')
@@ -90,19 +97,20 @@ class Provider {
                 }
                 break
             case 'create':
-                res = await fetch(this.url + `/game`, {
-                    method: 'POST'
-                })
-                js = await res.json()
                 try {
+                    res = await fetch(url() + `/game`, {
+                        method: 'POST'
+                    })
+                    js = await res.json()
+
                     if (js.game) {
                         this.gameId = js.game
                         this.player.name = m.name
-                        const i = io(this.url, { rejectUnauthorized: false })
+                        const i = io(url(), { rejectUnauthorized: false })
                         this._initSocket(i)
                         this._loadHTML(
                             PAGES['game'],
-                            {...this.player, gameId: this.gameId}
+                            { ...this.player, gameId: this.gameId }
                         )
                     } else {
                         throw Error('something wrong w create')
@@ -125,14 +133,16 @@ class Provider {
                 })
                 break
             case 'sign-out':
-                fetch(this.url + `/game/${this.gameId}/${this.player.id}/sign-out`)
                 this.player = {
                     name: '',
                     id: ''
                 }
-                if(this.socket) this.socket.close()
                 this.waitingJoin = false
                 this._loadHTML(PAGES['splash'])
+                fetch(url() + `/game/${this.gameId}/${this.player.id}/sign-out`)
+                if (this.socket) {
+                    this.socket.close()
+                }
                 break
             case 'time-reminder':
                 if (m.time > 60)
@@ -141,38 +151,42 @@ class Provider {
                     vscode.window.showInformationMessage(`${m.time} seconds remaining.`)
                 break
             case 'open-spectator':
-                uri = vscode.Uri.parse(this.url + '/game/' + this.gameId)
+                uri = vscode.Uri.parse(url() + '/game/' + this.gameId)
                 vscode.commands.executeCommand('vscode.open', uri)
                 break
         }
     }
 
     _updateTime(startTime, editor) {
-        console.log('time', startTime)
-        this._sendMessage({
-            type: 'time',
-            time: startTime/1000
-        })
-        const code = editor.document.getText()
-        this._sendSocket('code update', {
-            id: this.gameId,
-            uid: this.player.id,
-            code
-        })
+        if(this.int) clearInterval(this.int)
 
-        if (startTime < 500) {
-            // Redirect to end screen 
-            if (this.panel) {
-                this.player = {}
-                this._loadHTML(PAGES['end'])
-                if (this.sock) this.sock.close()
+        const int = setInterval(() => {
+            console.log('time', this.int)
+            console.log(int)
+            this._sendMessage({
+                type: 'time',
+                time: startTime / 1000
+            })
+            const code = editor.document.getText()
+            this._sendSocket('code update', {
+                id: this.gameId,
+                uid: this.player.id,
+                code
+            })
+
+            if (startTime < 500) {
+                // Redirect to end screen 
+                if (this.panel) {
+                    this.player = {}
+                    this._loadHTML(PAGES['end'])
+                    if (this.sock) this.sock.close()
+                }
+                clearInterval(int)
+                return
             }
-            return
-        }
-
-        setTimeout(() => {
-            this._updateTime(startTime - 1000, editor)
-        }, 1000);
+            startTime -= 1000
+        }, 1000)
+        this.int = int
     }
 
     // Verbose err and compact (user-displayed) e
@@ -193,7 +207,7 @@ class Provider {
         if (!this.panel) return
         // Render each part of data then pass into 
         // message event
-        const payload = page.render({ url: this.url, ...data })
+        const payload = page.render({ url: url(), ...data })
         console.log(payload)
         this._sendMessage({ type: 'render', ...payload })
     }
@@ -247,6 +261,7 @@ class Provider {
             this.waitingJoin = false
         })
         sock.on('ready', (data) => {
+            if (!data.end_time) return
             // Open new editor with template code
             const start_time = Date.parse(data.start_time)
             const end_time = Date.parse(data.end_time)
@@ -256,14 +271,14 @@ class Provider {
                 language: 'html',
                 content: require('./skeleton')()
             })
-            .then(doc => 
-                vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside })
-            )
-            .then(editor => {
-                const seconds = (end_time - start_time)
-                this._updateTime(seconds, editor)
-            })
-            .catch(e => console.log('err', e))
+                .then(doc =>
+                    vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside })
+                )
+                .then(editor => {
+                    const seconds = (end_time - start_time)
+                    this._updateTime(seconds, editor)
+                })
+                .catch(e => console.log('err', e))
         })
     }
 }

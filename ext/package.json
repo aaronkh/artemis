@@ -2,7 +2,12 @@
 	"name": "coding-in-the-dark",
 	"displayName": "Coding in the Dark",
 	"description": "Blind HTML/CSS... competitively",
-	"version": "0.0.1",
+	"publisher": "aaronkh",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aaronkh/coding-in-the-dark"
+	},
+	"version": "0.0.13",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
@@ -23,18 +28,11 @@
 		"configuration": {
 			"title": "Coding in the Dark",
 			"properties": {
-				"coding-in-the-dark.url": {
+				"coding-in-the-dark.URL": {
 					"type": "string",
 					"default": "http://localhost:8080",
 					"pattern": "^https?:\\/\\/[a-zA-Z\\.\\/0-9:]+$",
 					"description": "Code submission URL"
-				},
-				"coding-in-the-dark.time-limit": {
-					"type": "integer",
-					"default": 900,
-					"minimum": 60,
-					"maximum": 3600,
-					"description": "Time given per game (seconds)"
 				}
 			}
 		}
