@@ -12,7 +12,7 @@ function activate(context) {
 		} catch (e) { console.log(e) }
 	});
 	context.subscriptions.push(disposable);
-	vscode.window.showInformationMessage('Run "Code in the Dark!" from the command palette to get started!');
+	// vscode.window.showInformationMessage('Run "Code in the Dark!" from the command palette to get started!');
 }
 
 // VS Code requires both exports and module.exports...

@@ -8,6 +8,11 @@ const SHELL = `
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"> 
+    <script
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="
+        crossorigin="anonymous"></script>
+
     <style type="text/css">
         /* Page CSS will go here */
     </style>
@@ -17,8 +22,8 @@ const SHELL = `
         <!-- Page HTML will go here -->
         </div>
        <script>
-       const vscode = acquireVsCodeApi()
        
+       const vscode = acquireVsCodeApi()
        window.addEventListener('message', ({data}) => {
             if(data.type !== 'render') return 
             const {html, css, js} = data

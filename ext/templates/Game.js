@@ -23,20 +23,21 @@ const html = `
         </div>
         <p>Try to copy the site below <b>without</b> running your code.</p>
         <div id="assets">
-            <h4>Assets</h4>
+            <h4 style="text-decoration: underline">Assets</h4>
             <p>Use these images in your site:</p>
             <ul>
                 
             </ul>
         </div>
-        <img src="" id="preview"></img
+        <a href="#" id="img-link">
+            <img src="https://i.redd.it/sv7mxplawwz31.png" id="thumb-inside" style="position: relative; display: flex; align-items: center; width: 100%"></img>
+        </a>
+        <p style="font-size: 0.9rem; margin-top: 1.5rem">Click on the image to open it in a browser window.</p>
     </div>
     </div>
     <div id="content"></div>
 `
 const css = `
-    * {
-    }
     code {
         font-size: 1.2rem
     }
@@ -73,7 +74,9 @@ const css = `
         text-decoration: underline;
         cursor: pointer;
     }
-
+    li {
+        overflow-wrap: anywhere;
+    }
     .invisible {
         display: none;
     }
@@ -99,12 +102,14 @@ const css = `
         font-family: serif;
         margin: 0;
         padding: 0;
+        margin-bottom: 2rem;
     }
 `
 const js = `
 let isReady = false
 const rdyButton = document.querySelector('.button')
 const content = document.querySelector('#content')
+const width = document.querySelector('#body').offsetWidth
 
 document.getElementById('sign-out').addEventListener('click', () => vscode.postMessage({type: 'sign-out'}))
 
@@ -127,23 +132,29 @@ window.addEventListener('message', ({data}) => {
         updateTimer(m.time)
     }
 })
+
 window.addEventListener('message', ({data}) => {
     const m = data
     if(m.type === 'content') {
-        const image = m.image
         const assets = m.assets
-        if(!assets) {
+        const url = m.url
+        const image = url + '/' + m.image
+        if(assets.length <= 0) {
             document.getElementById('assets').classList.add('invisible')
         } else {
             document.getElementById('assets').classList.remove('invisible')
             const ul = document.querySelector('ul')
+            ul.innerHTML = ''
             for(const a of assets) {
                 const li = document.createElement('li')
                 li.appendChild(document.createTextNode(a));
                 ul.appendChild(li)
             }
         }
-        document.getElementById('preview').src = image
+
+        const img = document.getElementById('thumb-inside')
+        img.src = image
+        document.querySelector('#img-link').href = image
     }
 })
 
@@ -165,7 +176,6 @@ function updateTimer(time) {
     else t+=s
     document.getElementById('time').innerText = t + ' remaining'
 
-    console.log('t', time)
     document.querySelector('#game').classList.remove('invisible')
     document.querySelector('#waiting').classList.add('invisible')
 }

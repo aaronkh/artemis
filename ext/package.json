@@ -1,13 +1,13 @@
 {
 	"name": "coding-in-the-dark",
-	"displayName": "Coding in the Dark",
-	"description": "Blind HTML/CSS... competitively",
+	"displayName": "Artemis",
+	"description": "Coding in the Dark",
 	"publisher": "aaronkh",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/aaronkh/coding-in-the-dark"
 	},
-	"version": "0.0.14",
+	"version": "0.0.18",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
@@ -27,7 +27,7 @@
 		"commands": [
 			{
 				"command": "coding-in-the-dark.startPlaying",
-				"title": "Code in the Dark!"
+				"title": "Start Coding in the Dark!"
 			}
 		],
 		"configuration": {
@@ -35,7 +35,7 @@
 			"properties": {
 				"coding-in-the-dark.URL": {
 					"type": "string",
-					"default": "http://localhost:8080",
+					"default": "https://artemis.devinmui.com",
 					"pattern": "^https?:\\/\\/[a-zA-Z\\.\\/0-9:]+$",
 					"description": "Code submission URL"
 				},

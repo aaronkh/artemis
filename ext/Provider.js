@@ -63,6 +63,7 @@ class Provider {
         if (!m || !m.type) console.error('Message missing type', m)
         console.log('Message received', m)
         const cfg = vscode.workspace.getConfiguration('coding-in-the-dark')
+        console.log(cfg)
         let uri = null
         let res = null
         let js = null
@@ -275,6 +276,7 @@ class Provider {
             uri = vscode.Uri.file(uri)
             this._sendMessage({
                 type: 'content', 
+                url: url(),
                 image: data.image, 
                 assets: data.assets
             })
