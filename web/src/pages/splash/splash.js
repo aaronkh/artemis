@@ -16,10 +16,20 @@ function Splash() {
         }
     })
 
-    const onSubmit = () => {
-        socket.emit('spectate', {
-            id: game,
-        })
+    const onSubmit = async () => {
+        if (!name) return toast.error('Name is empty!')
+        if (!game) return toast.error('Game code is empty!')
+        try {
+            const res = await fetch(`/game/${game}/exists`)
+            if (res.status >= 400) throw new Error('Something went wrong...')
+
+            const data = await res.json()
+            if (!data.success) return toast.error('Game does not exist!')
+            toast.success('Game exists')
+        } catch (e) {
+            console.error(e)
+            return toast.error('Something went wrong...')
+        }
     }
 
     return (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouteMatch, Link, Route, Switch } from 'react-router-dom'
+import toast, { Toaster } from 'react-hot-toast'
 
 import socket from '../../lib/socket'
 
@@ -32,13 +33,22 @@ function Game() {
     const [players, setPlayers] = useState(PLAYERS)
 
     useEffect(() => {
-        socket.emit('load game', {
-            id: id,
-        })
+        const getGame = async () => {
+            try {
+                const res = await fetch(`/game/${id}/exists`)
+                if (res.status >= 400)
+                    throw new Error('Something went wrong...')
 
-        socket.on('load game', (game) => {
-            setPlayers(game.players)
-        })
+                const data = await res.json()
+                if (!data.success) return toast.error('Game does not exist!')
+                toast.success('Spectating game')
+            } catch (e) {
+                console.error(e)
+                return toast.error('Something went wrong...')
+            }
+        }
+
+        getGame()
 
         socket.on('code', (update) => {
             const uid = update.uid
@@ -66,31 +76,30 @@ function Game() {
 
     return (
         <>
-        <div class="container">
-            <div class="row">
-               
+            <div class="container">
+                <div class="row">
                     <div
                         className="container"
                         style={{
                             height: '100%',
                         }}
                     >
-                    
                         <h5>Time Left: 10:20</h5>
-                        <Route path={`${match.path}/screen/:player_id`}>
-                            <Focus players={players} path={match.url} />
-                        </Route>
+                        <Switch>
+                            <Route path={`${match.path}/screen/:player_id`}>
+                                <Focus players={players} path={match.url} />
+                            </Route>
 
-                        <Route exact path={`${match.path}/`}>
-                            <Gallery players={players} />
-                        </Route>
+                            <Route exact path={`${match.path}/`}>
+                                <Gallery players={players} />
+                            </Route>
+                        </Switch>
                     </div>
-            
+
                     <Chat />
-                
+                </div>
             </div>
-        </div>
-            
+            <Toaster />
         </>
     )
 }

@@ -84,25 +84,31 @@ io.on('connection', (socket) => {
     //      socket.emit('event name', {data: 1})
     // })
     console.log('A player has connected')
-    socket.on('player join', (player_data) => {
+    socket.on('join', (player) => {
         /* player data expected in the form of 
         {
             "id": string,
-            "player":{
-                "name": string,
-                "uid": string,
-                "code": string,
-                "ready": bool 
-            }
+            "name": string,
+            "uid": string,
+            "code": string,
+            "ready": bool 
         }
         */
         const room_size = 8
-        if (!games.has(player_data.id))
+        if (!games.has(player.id))
             return socket.emit('error', { error: 'The game does not exist' })
 
-        if (games.get(player_data.id).players.length >= room_size) {
+        if (games.get(player.id).players.length >= room_size)
             return socket.emit('error', { error: 'The game room is full' })
-        games.get(player_data.id).players.push(player_data.player)
+
+        const player_object = {
+            name: player.name,
+            uid: socket.id,
+            code: '',
+            ready: false,
+        }
+        games.get(player.id).players.push(player_object)
+        socket.join(`/game/${player.id}`)
     })
 
     // spectators
@@ -142,6 +148,12 @@ io.on('connection', (socket) => {
         )
     })
 
+    socket.on('unready', (player) => {
+        for (let p of games.get(player.id).players) {
+            if (p.uid === player.uid) return (p.ready = false)
+        }
+    })
+
     socket.on('ready', (player) => {
         /* msg expected in the form of 
         {
@@ -162,9 +174,16 @@ io.on('connection', (socket) => {
         }
         games.get(player.id).ready = all_ready
         if (all_ready) {
-            io.to('/game/' + player.id).emit('all ready') //sends the all ready signal to the game room with the received game id
+            let time_amount = 900000 // 15 minutes
+            const start_time = new Date()
+            let end_time = start_time
+            end_time.setMinutes(end_time.getMinutes() + time_amount / 60 / 1000)
 
-            let time_amount = 900000; // 15 minutes
+            io.to('/game/' + player.id).emit('ready', {
+                start_time: start_time.toISOString(),
+                end_time: end_time.toISOString(),
+            }) //sends the all ready signal to the game room with the received game id
+
             setTimeout(() => {
                 io.to('/game/' + player.id).emit('game over')
                 io.to('/game/' + player.id + '/spectate').emit('game over')
