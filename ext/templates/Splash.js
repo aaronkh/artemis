@@ -126,7 +126,7 @@ createBtn.addEventListener('click', async () => {
         return
     }
     vscode.postMessage({
-        type: 'join',
+        type: 'create',
         name: name.value.trim()
     })
     console.error('create', 'Not Implemented')

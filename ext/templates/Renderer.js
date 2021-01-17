@@ -1,5 +1,4 @@
 // you must do all scene changes in JS
-// document.getElementsByTagName('style')[0].innerHTML="";
 const SHELL = `
 <!DOCTYPE html>
 <html>
@@ -10,14 +9,16 @@ const SHELL = `
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"> 
     <style type="text/css">
-        
+        /* Page CSS will go here */
     </style>
     </head>
     <body>
-        <div id="body"></div>
+        <div id="body">
+        <!-- Page HTML will go here */ 
+        </div>
        <script>
-       const url = {{url}}
        const vscode = acquireVsCodeApi()
+       const socket = io()
        let listeners = []
        
        window.addEventListener('message', ({data}) => {
