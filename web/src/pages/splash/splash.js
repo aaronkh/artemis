@@ -15,6 +15,7 @@ function Splash() {
     const history = useHistory()
 
     useEffect(() => {
+        document.title = 'Coding in the Dark | Test your CSS skills'
         socket.on('error', (error) => {
             toast.error(error.error)
         })
