@@ -163,6 +163,9 @@ io.on('connection', (socket) => {
             games.get(player.id)
         )
     })
+    socket.on('chat message', (msg) => {
+        io.emit('chat message', msg);
+    });
 
     socket.on('unready', (player) => {
         for (let p of games.get(player.id).players) {
@@ -218,7 +221,7 @@ io.on('connection', (socket) => {
         /* msg_data expected in the form of 
         {
             "id": string,
-            "uid": string,
+            "name": string,
             "msg": bool
         }
         */
