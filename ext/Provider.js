@@ -1,17 +1,19 @@
-const uuid = require('uuid').v4
 const vscode = require('vscode')
-const Game = require('./templates/Game')
-const Splash = require('./templates/Splash')
+const path = require('path')
 const Renderer = require('./templates/Renderer')
+const End = require('./templates/End')
 
 const PAGES = {
-    splash: Splash,
-    game: Game,
-    // end: End
+    splash: require('./templates/End'),
+    game: require('./templates/Game'),
+    end: require('./templates/End')
 }
 
 class Provider {
     constructor() {
+        const cfg = vscode.workspace.getConfiguration('coding-in-the-dark')
+        console.log(cfg)
+        this.url = cfg
         this.windowActive = false
         this.gameId = ''
         this.player = {
@@ -34,6 +36,7 @@ class Provider {
         this.panel = panel
 
         panel.webview.html = Renderer
+        panel.webview.onDidReceiveMessage(m => this._onMessage(m))
         if (this.gameId) {
             // Game has already started  
             this._loadHTML(
@@ -56,12 +59,99 @@ class Provider {
         this.panel = null
     }
 
+    _onMessage(m) {
+        if (!m || !m.type) console.error('Message missing type', m)
+        console.log('Message received', m)
+        let uri = null
+        switch (m.type) {
+            case 'play-again':
+                this.player = {
+                    name: '',
+                    id: ''
+                }
+                this._loadHTML(PAGES['splash'])
+                break
+            case 'join':
+                // TODO: check with server to get valid join code
+                // Expects a player id and game id from server
+                // Go next
+                this.player = {
+                    name: m.name,
+                    id: 'testid-123',
+                }
+                this.gameId = 'testgame-123'
+                this._loadHTML(
+                    PAGES['game'],
+                    this.player
+                )
+                break
+            case 'ready':
+                // TODO: send ready signal to server
+                break
+            case 'unready':
+                // TODO: send unready signal to server
+                break
+            case 'sign-out':
+                this.player = {
+                    name: '',
+                    id: ''
+                }
+                // TODO: also clear from server
+                this._loadHTML(PAGES['splash'])
+                break
+            case 'time-reminder':
+                if (m.time > 60)
+                    vscode.window.showInformationMessage(`${Math.floor(m.time / 60)} minutes remaining.`)
+                else
+                    vscode.window.showInformationMessage(`${m.time} seconds remaining.`)
+                break
+            case 'game-start':
+                // Open new editor with template code
+                uri = path.join(__dirname, 'skeleton.html')
+                // TODO: get ending time from server, send game start signal
+                uri = vscode.Uri.file(uri)
+                vscode.workspace.openTextDocument(uri).then(doc => {
+                    vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside })
+                })
+                    .then(editor => {
+                        this._updateTime(60 * 15, editor)
+                    })
+                    .catch(e => console.error('error', e))
+                break
+            case 'open-spectator':
+                // TODO: get actual spectator URL
+                uri = vscode.Uri.parse('https://www.google.com')
+                vscode.commands.executeCommand('vscode.open', uri)
+                break
+        }
+    }
+
+    _updateTime(startTime, editor) {
+        this._sendMessage({
+            type: 'time',
+            time: startTime
+        })
+        // TODO: send this to server
+        const text = editor.document.getText()
+
+        if (startTime < 500) {
+            // Redirect to end screen 
+            if(panel) {
+                this._loadHTML(End)
+            }
+            return    
+        }
+        
+        window.setTimeout(() => {
+            this._updateTime(startTime - 1000)
+        }, 1000);
+    }
+
     _sendMessage(d) {
         // JS message passing: https://code.visualstudio.com/api/extension-guides/webview#scripts-and-message-passing
         if (!this.panel) {
             return
         }
-        console.log(d)
         this.panel.webview.postMessage(d)
     }
 
@@ -69,7 +159,8 @@ class Provider {
         if (!this.panel) return
         // Render each part of data then pass into 
         // message event
-        this._sendMessage({type: 'render', ...page.render({data})})
+        const payload = page.render(data)
+        this._sendMessage({ type: 'render', url: this.url, ...payload })
     }
 }
 

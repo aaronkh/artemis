@@ -19,15 +19,13 @@ const styles = `
     opacity: 1;
 }
 
-body, html {
+#body, html {
     background: black;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Poppins', sans-serif;
-    height: 100%; width: 100%;
-    margin: 0; padding: 0;
     min-width: 100px;
 }
 .main {
@@ -127,6 +125,10 @@ createBtn.addEventListener('click', async () => {
         error.classList.remove('invisible')
         return
     }
+    vscode.postMessage({
+        type: 'join',
+        name: name.value.trim()
+    })
     console.error('create', 'Not Implemented')
 })
 
@@ -143,6 +145,11 @@ joinBtn.addEventListener('click', async () => {
         error.classList.remove('invisible')
         return
     }
+    vscode.postMessage({
+        type: 'join',
+        id: code.value.trim(),
+        name: name.value.trim()
+    })
     console.error('join', 'Not Implemented')
 })
 `
