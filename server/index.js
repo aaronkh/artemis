@@ -32,8 +32,6 @@ games
 }
 */
 
-app.get('/debug', (_, res) => res.json(games))
-
 // check for existence of game
 app.get('/game/:id/exists', (req, res) => {
     res.json({
@@ -42,6 +40,7 @@ app.get('/game/:id/exists', (req, res) => {
 })
 
 app.get('/game/:id/:uid/sign-out', (req, res) => {
+    // Should prevent arbitrary people from signing others out
     const game = games[req.params.id]
     if(game) {
 	const arr = game.players.filter(p => p.uid == req.params.uid)
@@ -81,6 +80,7 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.join(__dirname, 'build', 'index.html'))
     })
 } else {
+    app.get('/debug', (_, res) => res.json(games))
     app.get('/', (req, res) => {
         res.json({ message: 'hello world!' })
     })
