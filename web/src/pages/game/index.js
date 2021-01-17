@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import socket from '../../lib/socket'
 
 import Frame, { FullFrame } from './frame'
-import Chat from './chat/chat'
+import Chat from './chat'
 
 const PLAYERS = [
     {
@@ -42,6 +42,11 @@ function Game() {
                 const data = await res.json()
                 if (!data.success) return toast.error('Game does not exist!')
                 toast.success('Spectating game')
+
+                // join room
+                socket.emit('spectate', {
+                    id: id,
+                })
 
                 socket.on('code', (update) => {
                     const uid = update.uid
@@ -95,7 +100,7 @@ function Game() {
                         </Switch>
                     </div>
 
-                    <Chat />
+                    <Chat id={id} />
                 </div>
             </div>
             <Toaster />
