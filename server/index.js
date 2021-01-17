@@ -149,6 +149,10 @@ io.on('connection', (socket) => {
         }
         games.get(player.id).players.push(player_object)
         socket.join(`/game/${player.id}`)
+        io.in('/game/' + player.id + '/spectate').emit(
+            'code',
+            games.get(player.id)
+        )
     })
 
     // spectators
@@ -213,6 +217,11 @@ io.on('connection', (socket) => {
         for (let p of games.get(player.id).players) {
             if (p.uid === player.uid) return (p.ready = false)
         }
+
+        io.in('/game/' + player.id + '/spectate').emit(
+            'code',
+            games.get(player.id)
+        )
     })
 
     socket.on('ready', (player) => {
@@ -232,6 +241,11 @@ io.on('connection', (socket) => {
             return socket.emit('error', {
                 error: 'The game has already started',
             })
+
+        io.in('/game/' + player.id + '/spectate').emit(
+            'code',
+            games.get(player.id)
+        )
 
         let current_players = games.get(player.id).players
         let all_ready = true
